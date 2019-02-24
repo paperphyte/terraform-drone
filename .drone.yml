@@ -1,5 +1,5 @@
 pipeline:
   backend:
-    image: golang:1.10
+    image: hashicorp/terraform:light
     commands:
-      - echo "drone server in aws."
+      - terraform validate -check-variables=false drone-ci/
