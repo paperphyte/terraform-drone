@@ -18,7 +18,7 @@ func TestWebServer(t *testing.T) {
 	// Run `terraform init` and `terraform apply`
 	terraform.InitAndApply(t, terraformOptions)
 	// Run `terraform output` to get the value of an output variable
-	url := terraform.Output(t, terraformOptions, "alb_hostname")
+	url := terraform.Output(t, terraformOptions, "ci_server_url")
 	url = url + "/healthz"
 	// Verify that we get back a 200 OK with the expected text. It
 	// takes ~1 min for the Instance to boot, so retry a few times.
