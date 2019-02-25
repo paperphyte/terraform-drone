@@ -1,15 +1,26 @@
+resource "aws_cloudwatch_log_group" "drone_agent" {
+  name = "drone/agent"
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
+}
+
+resource "random_pet" "drone_task_runnner_name" {
+  separator = "."
+}
+
 data "template_file" "drone_agent_task_definition" {
-  template = "${file("task-definitions/drone-agent.json")}"
+  template   = "${file("task-definitions/drone-agent.json")}"
+  depends_on = ["random_string.drone_rpc_secret"]
 
   vars {
     log_group_region      = "${var.aws_region}"
     log_group_drone_agent = "${aws_cloudwatch_log_group.drone_agent.name}"
-    drone_server          = "server.drone.local"
-    drone_secret          = "${var.drone_secret}"
+    runner_name           = "${random_pet.drone_task_runnner_name.id}"
+    drone_rpc_server      = "http://${aws_service_discovery_service.ci_server.name}.${aws_service_discovery_private_dns_namespace.ci.name}"
+    drone_rpc_secret      = "${random_string.drone_rpc_secret.id}"
     drone_version         = "${var.drone_version}"
-    drone_agent_port      = "${var.drone_agent_port}"
-    container_cpu         = "${var.container_cpu}"
-    container_memory      = "${var.container_memory}"
+    container_cpu         = "${var.ecs_container_cpu}"
+    container_memory      = "${var.ecs_container_memory}"
+    drone_logs_debug      = "${var.env_drone_logs_debug}"
   }
 }
 
@@ -21,11 +32,18 @@ resource "aws_ecs_task_definition" "drone_agent" {
     name      = "dockersock"
     host_path = "/var/run/docker.sock"
   }
+
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
 resource "aws_ecs_service" "drone_agent" {
-  name            = "drone-agent"
-  cluster         = "${aws_ecs_cluster.drone.id}"
-  desired_count   = "${var.drone_desired_count_agent}"
+  name = "drone-agent"
+
+  depends_on = [
+    "aws_ecs_task_definition.drone_agent",
+  ]
+
+  cluster         = "${aws_ecs_cluster.ci_server.id}"
+  desired_count   = "${var.drone_agent_max_count}"
   task_definition = "${aws_ecs_task_definition.drone_agent.arn}"
 }

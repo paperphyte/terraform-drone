@@ -1,105 +1,111 @@
-resource "aws_security_group" "web" {
-  description = "controls access to the application ELB"
+resource "aws_security_group" "ci_server_web" {
+  description = "Restrict access to ALB"
 
-  vpc_id = "${aws_vpc.drone.id}"
-  name   = "drone-lb"
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
+  vpc_id = "${aws_vpc.ci.id}"
+  name   = "ci-server-alb-sg"
 }
 
-resource "aws_security_group" "drone_server" {
-  description = "controls direct access to application instances"
-  vpc_id      = "${aws_vpc.drone.id}"
-  name        = "drone-server-task-sg"
+resource "aws_security_group_rule" "ci_server_web_egress" {
+  type        = "egress"
+  description = "RDP s"
+  depends_on  = ["aws_security_group.ci_server_web"]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
 
-  ingress {
-    protocol  = "tcp"
-    from_port = "${var.drone_server_port}"
-    to_port   = "${var.drone_server_port}"
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
 
-    security_groups = [
-      "${aws_security_group.web.id}",
-    ]
-  }
-
-  ingress {
-    protocol  = "tcp"
-    from_port = "${var.drone_agent_port}"
-    to_port   = "${var.drone_agent_port}"
-
-    security_groups = [
-      "${aws_security_group.ec2_sg.id}",
-    ]
-  }
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
+  security_group_id = "${aws_security_group.ci_server_web.id}"
 }
 
-resource "aws_security_group" "db" {
-  name        = "drone-db-sg"
-  description = "Allow all inbound traffic"
-  vpc_id      = "${aws_vpc.drone.id}"
+resource "aws_security_group_rule" "ci_server_web_ingress" {
+  type        = "ingress"
+  description = "RDP p"
+  depends_on  = ["aws_security_group.ci_server_app", "aws_security_group.ci_server_web"]
+  protocol    = "tcp"
+  from_port   = 443
+  to_port     = 443
+  cidr_blocks = "${var.alb_ingres_cidr_whitelist}"
 
-  ingress {
-    from_port = 3306
-    to_port   = 3306
-    protocol  = "TCP"
-
-    security_groups = [
-      "${aws_security_group.drone_server.id}",
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  security_group_id = "${aws_security_group.ci_server_web.id}"
 }
 
-resource "aws_security_group" "ec2_sg" {
-  description = "controls direct access to application instances"
-  vpc_id      = "${aws_vpc.drone.id}"
-  name        = "ecs-instsg"
+resource "aws_security_group" "ci_server_app" {
+  description = "Restrict access to application server."
+  vpc_id      = "${aws_vpc.ci.id}"
+  name        = "ci-server-task-sg"
+}
 
-  ingress {
-    protocol  = "tcp"
-    from_port = 22
-    to_port   = 22
+resource "aws_security_group_rule" "ci_server_app_egress" {
+  type        = "egress"
+  description = "RDP c"
+  depends_on  = ["aws_security_group.ci_server_app"]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
 
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  security_group_id = "${aws_security_group.ci_server_app.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress" {
+  type        = "ingress"
+  description = "RDP n"
+  depends_on  = ["aws_security_group.ci_server_app", "aws_security_group.ci_server_ecs_instance"]
+  protocol    = "tcp"
+  from_port   = "${var.drone_agent_port}"
+  to_port     = "${var.drone_agent_port}"
+
+  source_security_group_id = "${aws_security_group.ci_server_ecs_instance.id}"
+  security_group_id        = "${aws_security_group.ci_server_app.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress2" {
+  type        = "ingress"
+  description = "RDP v"
+  depends_on  = ["aws_security_group.ci_server_app", "aws_security_group.ci_server_web"]
+  protocol    = "tcp"
+  from_port   = "${var.drone_server_port}"
+  to_port     = "${var.drone_server_port}"
+
+  source_security_group_id = "${aws_security_group.ci_server_web.id}"
+  security_group_id        = "${aws_security_group.ci_server_app.id}"
+}
+
+resource "aws_security_group" "ci_server_ecs_instance" {
+  description = "Restrict access to application instances"
+  vpc_id      = "${aws_vpc.ci.id}"
+  name        = "ci-server-ecs-instance-sg"
+}
+
+resource "aws_security_group_rule" "ci_server_ecs_instance_egress" {
+  type        = "egress"
+  description = "RDP a"
+  depends_on  = ["aws_security_group.ci_server_ecs_instance"]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.ci_server_ecs_instance.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
+  type        = "ingress"
+  description = "RDP b"
+  depends_on  = ["aws_security_group.ci_server_ecs_instance"]
+  protocol    = "tcp"
+  from_port   = 22
+  to_port     = 22
+
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+
+  security_group_id = "${aws_security_group.ci_server_ecs_instance.id}"
 }

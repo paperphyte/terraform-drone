@@ -1,14 +1,16 @@
-output "alb_hostname" {
-  value = "http://${aws_alb.front.dns_name}"
+output "ci_server_url" {
+  description = "public accessible url of the ci"
+  value       = "http://${aws_alb.front.dns_name}"
 }
 
-output "database_root_password" {
-  value       = "${random_string.db_password.result}"
+output "ci_db_root_password" {
+  value       = "${random_string.ci_db_password.result}"
   sensitive   = true
-  description = "Password for the root user of the RDS MySQL databse."
+  description = "RDS database root user password"
 }
 
-output "region" {
-  value       = "${var.aws_region}"
-  description = "Region the resources were created in."
+output "ci_drone_rpc_secret" {
+  value       = "${random_string.drone_rpc_secret.id}"
+  sensitive   = true
+  description = "The RPC secret for drone server"
 }

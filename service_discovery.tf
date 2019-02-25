@@ -1,14 +1,14 @@
-resource "aws_service_discovery_private_dns_namespace" "drone" {
-  name        = "drone.local"
-  description = "drone private dns"
-  vpc         = "${aws_vpc.drone.id}"
+resource "aws_service_discovery_private_dns_namespace" "ci" {
+  name        = "ci-tool.local"
+  description = "Private DNS ci-server"
+  vpc         = "${aws_vpc.ci.id}"
 }
 
-resource "aws_service_discovery_service" "drone_server" {
-  name = "server"
+resource "aws_service_discovery_service" "ci_server" {
+  name = "drone"
 
   dns_config {
-    namespace_id = "${aws_service_discovery_private_dns_namespace.drone.id}"
+    namespace_id = "${aws_service_discovery_private_dns_namespace.ci.id}"
 
     dns_records {
       ttl  = 10

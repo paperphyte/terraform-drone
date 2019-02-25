@@ -8,8 +8,10 @@
       "/bin/drone-agent"
     ],
     "environment": [
-      { "name": "DRONE_SERVER", "value": "${drone_server}:${drone_agent_port}" },
-      { "name": "DRONE_SECRET", "value": "${drone_secret}" }
+      { "name": "DRONE_RPC_SERVER", "value": "${drone_rpc_server}" },
+      { "name": "DRONE_RPC_SECRET", "value": "${drone_rpc_secret}" },
+      { "name": "DRONE_RUNNER_NAME", "value": "${runner_name}" },
+      { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}"}
     ],
     "mountPoints": [{
       "sourceVolume": "dockersock",

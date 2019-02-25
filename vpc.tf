@@ -1,67 +1,52 @@
-resource "aws_vpc" "drone" {
-  cidr_block           = "172.31.0.0/16"
+resource "aws_vpc" "ci" {
+  cidr_block           = "172.35.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags {
-    Name        = "drone"
-    Environment = "${var.environment}"
-  }
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
-resource "aws_subnet" "drone_a" {
-  vpc_id                  = "${aws_vpc.drone.id}"
-  cidr_block              = "172.31.16.0/20"
+resource "aws_subnet" "ci_subnet_a" {
+  vpc_id                  = "${aws_vpc.ci.id}"
+  cidr_block              = "172.35.16.0/20"
   map_public_ip_on_launch = true
   availability_zone       = "${var.aws_region}a"
 
-  tags {
-    Name        = "drone_subset_a"
-    Environment = "${var.environment}"
-  }
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
-resource "aws_subnet" "drone_c" {
-  vpc_id                  = "${aws_vpc.drone.id}"
-  cidr_block              = "172.31.32.0/20"
+resource "aws_subnet" "ci_subnet_c" {
+  vpc_id                  = "${aws_vpc.ci.id}"
+  cidr_block              = "172.35.32.0/20"
   map_public_ip_on_launch = true
   availability_zone       = "${var.aws_region}c"
 
-  tags {
-    Name        = "drone_subset_c"
-    Environment = "${var.environment}"
-  }
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
-resource "aws_internet_gateway" "drone" {
-  vpc_id = "${aws_vpc.drone.id}"
+resource "aws_internet_gateway" "ci" {
+  vpc_id = "${aws_vpc.ci.id}"
 
-  tags {
-    Name        = "drone_gw"
-    Environment = "${var.environment}"
-  }
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
-resource "aws_route_table" "drone" {
-  vpc_id = "${aws_vpc.drone.id}"
+resource "aws_route_table" "ci" {
+  vpc_id = "${aws_vpc.ci.id}"
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.drone.id}"
+    gateway_id = "${aws_internet_gateway.ci.id}"
   }
 
-  tags {
-    Name        = "aws_route_table"
-    Environment = "${var.environment}"
-  }
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = "${aws_subnet.drone_a.id}"
-  route_table_id = "${aws_route_table.drone.id}"
+  subnet_id      = "${aws_subnet.ci_subnet_a.id}"
+  route_table_id = "${aws_route_table.ci.id}"
 }
 
 resource "aws_route_table_association" "c" {
-  subnet_id      = "${aws_subnet.drone_c.id}"
-  route_table_id = "${aws_route_table.drone.id}"
+  subnet_id      = "${aws_subnet.ci_subnet_c.id}"
+  route_table_id = "${aws_route_table.ci.id}"
 }

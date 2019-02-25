@@ -1,53 +1,4 @@
-#
-# ec2 instance iam rule
-# drone server and agent
-#
-resource "aws_iam_role" "ecs_service" {
-  name = "drone_ecs_role"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ecs.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "ecs_service" {
-  name = "drone_ecs_policy"
-  role = "${aws_iam_role.ecs_service.name}"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:Describe*",
-        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-        "elasticloadbalancing:DeregisterTargets",
-        "elasticloadbalancing:Describe*",
-        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-        "elasticloadbalancing:RegisterTargets"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}
-
-data "template_file" "ecs_profile" {
+data "template_file" "ci_server_ecs_profile" {
   template = "${file("${path.module}/iam-policy/drone-ecs.json")}"
 
   vars {
@@ -56,8 +7,8 @@ data "template_file" "ecs_profile" {
   }
 }
 
-resource "aws_iam_role" "ecs_task" {
-  name = "drone_ecs_task_role"
+resource "aws_iam_role" "ci_server_ecs_task" {
+  name = "ci_server_ecs_task_role"
 
   assume_role_policy = <<EOF
 {
@@ -76,23 +27,24 @@ resource "aws_iam_role" "ecs_task" {
 EOF
 }
 
-resource "aws_iam_role_policy" "ecs" {
-  name   = "drone-ecs-policy"
-  role   = "${aws_iam_role.ecs_task.name}"
-  policy = "${data.template_file.ecs_profile.rendered}"
+resource "aws_iam_role_policy" "ci_server_ecs" {
+  name   = "ci-server-ecs-policy"
+  role   = "${aws_iam_role.ci_server_ecs_task.name}"
+  policy = "${data.template_file.ci_server_ecs_profile.rendered}"
 }
 
 #
 # ec2 instance iam rule
 # drone agent
 #
-resource "aws_iam_instance_profile" "drone" {
+resource "aws_iam_instance_profile" "ci_server" {
   name = "ecs-ec2-instprofile"
   role = "${aws_iam_role.drone_agent.name}"
 }
 
 resource "aws_iam_role" "drone_agent" {
   name = "ecs-ec2-role"
+  tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
 
   assume_role_policy = <<EOF
 {

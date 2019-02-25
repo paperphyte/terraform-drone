@@ -1,70 +1,98 @@
-variable "aws_access_key" {
-  description = "aws access key."
-}
-
-variable "aws_secret_key" {
-  description = "aws secret key."
-}
-
 variable "aws_region" {
-  description = "aws region."
-  default     = "us-east-1"
+  description = "AWS region where ci is deployed"
+  default     = "eu-west-1"
 }
 
-variable "environment" {
-  default = "staging"
+variable "root_domain_zone_id" {
+  description = "Pre-existing Route53 Hosted Zone ID"
 }
 
-# Route53 root zone
-variable "route53_zone" {
-  default = "test.com"
+variable "root_domain" {
+  default     = "example.com"
+  description = "Pre-existing Route53 Hosted Zone domain"
 }
 
-variable "identifier" {
-  default     = "drone-rds"
-  description = "Identifier for your DB"
+variable "alb_ingres_cidr_whitelist" {
+  description = "White-list cidr range to access ci. Allow from [Github Hook IP](https://api.github.com/meta)   "
+  default     = ["0.0.0.0/0"]
 }
 
-variable "storage" {
+variable "ci_sub_domain" {
+  default     = "ci"
+  description = "Sub part of domain for ci"
+}
+
+variable "ci_tool_pubkey" {
+  description = "Pubkey of A pre-existing keypair"
+}
+
+variable "default_ttl" {
+  default     = "300"
+  description = "Default ttl for domain records"
+}
+
+variable "ci_db_identifier" {
+  default     = "ci-rds"
+  description = "Unique identifier of rds instance"
+}
+
+variable "ci_db_storage" {
   default     = "10"
   description = "Storage size in GB"
 }
 
-variable "engine" {
-  default     = "mysql"
-  description = "Engine type, example values mysql, postgres"
+variable "ci_db_engine" {
+  default     = "postgres"
+  description = "Engine type"
 }
 
-variable "engine_version" {
+variable "ci_db_engine_version" {
   description = "Engine version"
 
   default = {
-    mysql    = "5.7.21"
-    postgres = "9.6.8"
+    postgres = "10.6"
   }
 }
 
-variable "instance_class" {
-  default     = "db.t2.micro"
+variable "ci_db_engine_port" {
+  description = "Engine version"
+
+  default = {
+    postgres = 5432
+  }
+}
+
+variable "ci_db_instance_class" {
+  default     = "db.t3.micro"
   description = "Instance class"
 }
 
-variable "instance_type" {
+variable "ci_db_name" {
+  default     = "ci_db"
+  description = "Database Name"
+}
+
+variable "ci_db_username" {
+  default     = "ci_user"
+  description = "Database user name"
+}
+
+variable "ci_ec2_instance_type" {
   description = "EC2 Instance Type."
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
-variable "db_name" {
-  default     = "drone"
-  description = "db name"
+variable "ci_ecs_min_instances_count" {
+  description = "Min container instances running"
+  default     = "2"
 }
 
-variable "username" {
-  default     = "drone"
-  description = "database user name"
+variable "ci_ecs_max_instances_count" {
+  description = "Max container instances running."
+  default     = "2"
 }
 
-variable "amis" {
+variable "ecs_optimized_ami" {
   type = "map"
 
   #
@@ -72,83 +100,98 @@ variable "amis" {
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html
   #
   default = {
-    us-east-2      = "ami-956e52f0"
-    us-east-1      = "ami-5253c32d"
-    us-west-2      = "ami-d2f489aa"
-    us-west-1      = "ami-6b81980b"
-    eu-west-2      = "ami-3622cf51"
-    eu-west-3      = "ami-ca75c4b7"
-    eu-west-1      = "ami-c91624b0"
-    eu-central-    = "ami-10e6c8fb"
-    ap-northeast-2 = "ami-7c69c112"
-    ap-northeast-1 = "ami-f3f8098c"
-    ap-southeast-2 = "ami-bc04d5de"
-    ap-southeast-1 = "ami-b75a6acb"
-    ca-central-1   = "ami-da6cecbe"
-    ap-south-1     = "ami-c7072aa8"
-    sa-east-1      = "ami-a1e2becd"
-    us-gov-west-1  = "ami-03920462"
+    us-east-2      = "ami-0b485bb5e24e0fa19"
+    us-east-1      = "ami-095775a2445cb7ff7"
+    us-west-2      = "ami-072ca073fa9b8b128"
+    us-west-1      = "ami-09ebebeb27420060d"
+    eu-west-2      = "ami-03ae4df38be5818e7"
+    eu-west-3      = "ami-0210474827954ae61"
+    eu-west-1      = "ami-02a2ea2b210628cc5"
+    eu-central-1   = "ami-0d3777b4505b5fe15"
+    eu-north-1     = "ami-05c6f1ea1980e43c7"
+    ap-northeast-2 = "ami-0467ca4c0f6ab904a"
+    ap-northeast-1 = "ami-0cfa84956cde58703"
+    ap-southeast-2 = "ami-0a96da37cfa9923a4"
+    ap-southeast-1 = "ami-004a3d8e79a88f9fe"
+    ca-central-1   = "ami-0d774ad11778bc75e"
+    ap-south-1     = "ami-0d95ea0e61c0cf5ec"
+    sa-east-1      = "ami-06b53bdc7efc4fb83"
+    us-gov-east-1  = "ami-006ae70a0acd002d4"
+    us-gov-west-1  = "ami-078ae366"
   }
 }
 
-variable "alb_port" {
-  description = "ALB frond end port"
-  default     = "80"
+variable "ecs_container_cpu" {
+  description = "Requested ecs container CPU"
+  default     = "2000"
 }
 
-variable "task_cpu" {
-  description = "cpu usage of ecs task"
-  default     = "512"
+variable "ecs_container_memory" {
+  description = "Requested ecs container memory"
+  default     = "768"
 }
 
-variable "task_memory" {
-  description = "memory usage of ecs task"
-  default     = "1024"
+variable "fargate_task_cpu" {
+  default     = "256"
+  description = " [Fargate task CPU and memory at the task level](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html)"
 }
 
-variable "container_cpu" {
-  description = "cpu usage of ecs container"
-  default     = "128"
-}
-
-variable "container_memory" {
-  description = "memory usage of ecs container"
+variable "fargate_task_memory" {
+  description = " [Fargate task CPU and memory at the task level](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html)"
   default     = "512"
 }
 
 variable "drone_server_port" {
-  description = "drone server port."
-  default     = "8000"
+  description = "Port of Drone Server"
+  default     = "80"
 }
 
 variable "drone_agent_port" {
-  description = "drone agent comunicate port."
-  default     = "9000"
+  description = "Port of drone agent."
+  default     = "80"
 }
 
-variable "drone_github_client" {
-  description = "drone github client."
-}
-
-variable "drone_github_secret" {
-  description = "drone github secret."
-}
-
-variable "drone_secret" {
-  description = "drone secret."
-  default     = "1234567890"
-}
-
-variable "drone_version" {
-  description = "drone version."
-  default     = "0.8"
-}
-
-variable "drone_desired_count_agent" {
-  description = "drone agent desired."
+variable "drone_agent_min_count" {
+  description = "Min drone agens running."
   default     = "2"
 }
 
-variable "ssh_public_key" {
-  description = "The public key material. SSH public key file format as specified in RFC4716"
+variable "drone_agent_max_count" {
+  description = "Max drone agents running."
+  default     = "2"
+}
+
+variable "drone_version" {
+  description = "Ci Drone version."
+  default     = "1.0.0-rc.5"
+}
+
+variable "env_github_client" {
+  description = "A string containing GitHub oauth Client ID."
+}
+
+variable "env_github_secret" {
+  description = "A string containing GitHub oauth Client Secret."
+}
+
+variable "env_drone_admin" {
+  description = "Drone privileged User"
+}
+
+variable "env_drone_github_organization" {
+  description = "Registration is limited to users included in this list, or users that are members of organizations included in this list."
+}
+
+variable "env_drone_webhook_list" {
+  description = "String literal value provides a comma-separated list of webhook endpoints"
+  default     = "https://localhost?lis45"
+}
+
+variable "env_drone_logs_debug" {
+  description = "String literal for verboser output from logs "
+  default     = "false"
+}
+
+variable "env_drone_repo_filter" {
+  description = "whitliest repositories"
 }
