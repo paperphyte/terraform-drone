@@ -86,3 +86,28 @@ resource "aws_appautoscaling_target" "ecs_drone_server" {
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
+
+resource "aws_service_discovery_private_dns_namespace" "ci" {
+  name        = "ci-tool.local"
+  description = "Private DNS ci-server"
+  vpc         = "${aws_vpc.ci.id}"
+}
+
+resource "aws_service_discovery_service" "ci_server" {
+  name = "drone"
+
+  dns_config {
+    namespace_id = "${aws_service_discovery_private_dns_namespace.ci.id}"
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 10
+  }
+}
