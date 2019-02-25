@@ -1,8 +1,3 @@
-resource "random_string" "drone_rpc_secret" {
-  length  = 32
-  special = false
-}
-
 resource "aws_cloudwatch_log_group" "drone_server" {
   name = "drone/server"
   tags = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
@@ -116,7 +111,7 @@ data "template_file" "ci_server_ecs_profile" {
   template = "${file("${path.module}/iam-policy/drone-ecs.json")}"
 
   vars {
-    server_log_group_arn = "${aws_cloudwatch_log_group.drone_agent.arn}"
+    server_log_group_arn = "${module.build_agent.drone_agent_log_group_arn}"
     agent_log_group_arn  = "${aws_cloudwatch_log_group.drone_server.arn}"
   }
 }

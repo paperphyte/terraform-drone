@@ -1,7 +1,13 @@
+resource "random_string" "drone_rpc_secret" {
+  length  = 32
+  special = false
+}
+
 locals {
   subnet_id_1  = "${aws_subnet.ci_subnet_a.id}"
   subnet_id_2  = "${aws_subnet.ci_subnet_c.id}"
   keypair_name = "${aws_key_pair.ci_tool.key_name}"
+  rpc_secret   = "${random_string.drone_rpc_secret.id}"
 }
 
 resource "aws_key_pair" "ci_tool" {
@@ -79,7 +85,7 @@ module "ci_db" {
 
 module "ci_ecs_cluster" {
   source               = "./modules/cluster"
-  server_log_group_arn = "${aws_cloudwatch_log_group.drone_agent.arn}"
+  server_log_group_arn = "${module.build_agent.drone_agent_log_group_arn}"
   agent_log_group_arn  = "${aws_cloudwatch_log_group.drone_server.arn}"
   ci_sub_domain        = "${var.ci_sub_domain}"
   root_domain          = "${var.root_domain}"
@@ -105,4 +111,21 @@ module "load_balancer" {
   root_domain_zone_id      = "${var.root_domain_zone_id}"
   target_port              = "${var.drone_server_port}"
   target_security_group_id = "${aws_security_group.ci_server_web.id}"
+}
+
+module "build_agent" {
+  source              = "./modules/drone-agent"
+  ci_sub_domain       = "${var.ci_sub_domain}"
+  root_domain         = "${var.root_domain}"
+  rpc_server          = "http://${aws_service_discovery_service.ci_server.name}.${aws_service_discovery_private_dns_namespace.ci.name}"
+  rpc_secret          = "${local.rpc_secret}"
+  aws_region          = "${var.aws_region}"
+  app_version         = "${var.drone_version}"
+  app_debug           = "${var.env_drone_logs_debug}"
+  container_cpu       = "${var.ecs_container_cpu}"
+  container_memory    = "${var.ecs_container_memory}"
+  cluster_id          = "${module.ci_ecs_cluster.id}"
+  cluster_name        = "${module.ci_ecs_cluster.name}"
+  min_container_count = "${var.drone_agent_min_count}"
+  max_container_count = "${var.drone_agent_max_count}"
 }
