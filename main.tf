@@ -27,7 +27,7 @@ resource "random_string" "drone_rpc_secret" {
 
 resource "aws_key_pair" "ci_tool" {
   key_name   = "ci-tools"
-  public_key = "${var.ci_tool_pubkey}"
+  public_key = "${var.keypair_public_key}"
 }
 
 module "network" {
@@ -43,11 +43,11 @@ module "ci_db" {
   subnet_id_1                     = "${local.subnet_id_1}"
   subnet_id_2                     = "${local.subnet_id_2}"
   ci_server_app_security_group_id = "${local.ci_server_app_security_group_id}"
-  db_identifier                   = "${var.ci_db_identifier}"
-  db_storage                      = "${var.ci_db_storage}"
-  db_instance_class               = "${var.ci_db_instance_class}"
-  db_name                         = "${var.ci_db_name}"
-  db_username                     = "${var.ci_db_username}"
+  db_identifier                   = "${var.db_identifier}"
+  db_storage                      = "${var.db_storage_size}"
+  db_instance_class               = "${var.db_instance_type}"
+  db_name                         = "${var.db_name}"
+  db_username                     = "${var.db_user}"
   ci_sub_domain                   = "${var.ci_sub_domain}"
   root_domain                     = "${var.root_domain}"
 }
@@ -62,11 +62,11 @@ module "ci_ecs_cluster" {
   keypair_name         = "${local.keypair_name}"
   ci_sub_domain        = "${var.ci_sub_domain}"
   root_domain          = "${var.root_domain}"
-  min_instances_count  = "${var.ci_ecs_min_instances_count}"
-  max_instances_count  = "${var.ci_ecs_max_instances_count}"
+  min_instances_count  = "${var.ecs_min_instances_count}"
+  max_instances_count  = "${var.ecs_max_instances_count}"
   ecs_optimized_ami    = "${var.ecs_optimized_ami}"
   aws_region           = "${var.aws_region}"
-  instance_type        = "${var.ci_ec2_instance_type}"
+  instance_type        = "${var.ecs_cluster_instance_type}"
   ecs_optimized_ami    = "${var.ecs_optimized_ami}"
 }
 
@@ -79,7 +79,7 @@ module "load_balancer" {
   root_domain         = "${var.root_domain}"
   root_domain_zone_id = "${var.root_domain_zone_id}"
   target_port         = "${var.drone_server_port}"
-  ip_access_whitelist = "${var.alb_ingres_cidr_whitelist}"
+  ip_access_whitelist = "${var.ip_access_whitelist}"
 }
 
 module "build_agent" {

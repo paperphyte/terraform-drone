@@ -1,5 +1,30 @@
+variable "db_identifier" {
+  default     = "ci-rds"
+  description = "Identifier for RDS instance"
+}
+
+variable "db_storage_size" {
+  default     = "10"
+  description = "Storage size of RDS instance in GB"
+}
+
+variable "db_instance_type" {
+  default     = "db.t3.micro"
+  description = "RDS instance types "
+}
+
+variable "db_name" {
+  default     = "ci_db"
+  description = "Database Name"
+}
+
+variable "db_user" {
+  default     = "ci_user"
+  description = "Database user name"
+}
+
 variable "aws_region" {
-  description = "AWS region where ci is deployed"
+  description = "AWS region where the CI/CD gets deployed"
   default     = "eu-west-1"
 }
 
@@ -12,17 +37,17 @@ variable "root_domain" {
   description = "Pre-existing Route53 Hosted Zone domain"
 }
 
-variable "alb_ingres_cidr_whitelist" {
-  description = "White-list cidr range to access ci. Allow from [Github Hook IP](https://api.github.com/meta)   "
+variable "ci_sub_domain" {
+  default     = "ci"
+  description = "Sub-domain / hostname to access ci"
+}
+
+variable "ip_access_whitelist" {
+  description = "White-listed cidr IP to access user interface. Allow from [Github Hook IP](https://api.github.com/meta)   "
   default     = ["0.0.0.0/0"]
 }
 
-variable "ci_sub_domain" {
-  default     = "ci"
-  description = "Sub part of domain for ci"
-}
-
-variable "ci_tool_pubkey" {
+variable "keypair_public_key" {
   description = "Pubkey of A pre-existing keypair"
 }
 
@@ -31,63 +56,17 @@ variable "default_ttl" {
   description = "Default ttl for domain records"
 }
 
-variable "ci_db_identifier" {
-  default     = "ci-rds"
-  description = "Unique identifier of rds instance"
-}
-
-variable "ci_db_storage" {
-  default     = "10"
-  description = "Storage size in GB"
-}
-
-variable "ci_db_engine" {
-  default     = "postgres"
-  description = "Engine type"
-}
-
-variable "ci_db_engine_version" {
-  description = "Engine version"
-
-  default = {
-    postgres = "10.6"
-  }
-}
-
-variable "ci_db_engine_port" {
-  description = "Engine version"
-
-  default = {
-    postgres = 5432
-  }
-}
-
-variable "ci_db_instance_class" {
-  default     = "db.t3.micro"
-  description = "Instance class"
-}
-
-variable "ci_db_name" {
-  default     = "ci_db"
-  description = "Database Name"
-}
-
-variable "ci_db_username" {
-  default     = "ci_user"
-  description = "Database user name"
-}
-
-variable "ci_ec2_instance_type" {
+variable "ecs_cluster_instance_type" {
   description = "EC2 Instance Type."
   default     = "t3.micro"
 }
 
-variable "ci_ecs_min_instances_count" {
+variable "ecs_min_instances_count" {
   description = "Min container instances running"
   default     = "2"
 }
 
-variable "ci_ecs_max_instances_count" {
+variable "ecs_max_instances_count" {
   description = "Max container instances running."
   default     = "2"
 }
