@@ -1,6 +1,6 @@
 output "ci_server_url" {
   description = "public accessible url of the ci"
-  value       = "https://${aws_acm_certificate.cert.domain_name}"
+  value       = "${module.load_balancer.url_443}"
 }
 
 output "ci_db_root_password" {

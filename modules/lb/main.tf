@@ -1,12 +1,21 @@
+locals {
+  sub_domain               = "${var.ci_sub_domain}"
+  root_domain              = "${var.root_domain}"
+  subnet_id_1              = "${var.subnet_id_1}"
+  subnet_id_2              = "${var.subnet_id_2}"
+  vpc_id                   = "${var.vpc_id}"
+  target_security_group_id = "${var.target_security_group_id}"
+}
+
 resource "aws_alb_target_group" "ci_server" {
   name        = "ci-server-ecs"
-  port        = "${var.drone_server_port}"
+  port        = "${var.target_port}"
   protocol    = "HTTP"
-  vpc_id      = "${aws_vpc.ci.id}"
+  vpc_id      = "${local.vpc_id}"
   target_type = "ip"
 
   health_check {
-    path                = "/healthz"
+    path                = "${var.target_health_check_endpoint}"
     matcher             = "200"
     timeout             = "5"
     healthy_threshold   = "3"
@@ -17,11 +26,11 @@ resource "aws_alb_target_group" "ci_server" {
 resource "aws_alb" "front" {
   name            = "drone-front-alb"
   internal        = false
-  security_groups = ["${aws_security_group.ci_server_web.id}"]
-  subnets         = ["${aws_subnet.ci_subnet_a.id}", "${aws_subnet.ci_subnet_c.id}"]
+  security_groups = ["${local.target_security_group_id}"]
+  subnets         = ["${local.subnet_id_1}", "${local.subnet_id_2}"]
 
   enable_deletion_protection = false
-  tags                       = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
+  tags                       = "${map("Name", "${local.sub_domain}.${local.root_domain}")}"
 }
 
 resource "aws_alb_listener" "front_end" {
@@ -39,7 +48,7 @@ resource "aws_alb_listener" "front_end" {
 
 resource "aws_route53_record" "ci_public_url" {
   zone_id = "${var.root_domain_zone_id}"
-  name    = "${var.ci_sub_domain}.${var.root_domain}"
+  name    = "${local.sub_domain}.${local.root_domain}"
   type    = "A"
 
   alias {
@@ -50,9 +59,9 @@ resource "aws_route53_record" "ci_public_url" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "${var.ci_sub_domain}.${var.root_domain}"
+  domain_name       = "${local.sub_domain}.${local.root_domain}"
   validation_method = "DNS"
-  tags              = "${map("Name", "${var.ci_sub_domain}.${var.root_domain}")}"
+  tags              = "${map("Name", "${local.sub_domain}.${local.root_domain}")}"
   provider          = "aws"
 }
 

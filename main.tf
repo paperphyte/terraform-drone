@@ -94,3 +94,15 @@ module "ci_ecs_cluster" {
   ecs_optimized_ami    = "${var.ecs_optimized_ami}"
   keypair_name         = "${local.keypair_name}"
 }
+
+module "load_balancer" {
+  source                   = "./modules/lb"
+  ci_sub_domain            = "${var.ci_sub_domain}"
+  root_domain              = "${var.root_domain}"
+  vpc_id                   = "${aws_vpc.ci.id}"
+  subnet_id_1              = "${local.subnet_id_1}"
+  subnet_id_2              = "${local.subnet_id_2}"
+  root_domain_zone_id      = "${var.root_domain_zone_id}"
+  target_port              = "${var.drone_server_port}"
+  target_security_group_id = "${aws_security_group.ci_server_web.id}"
+}
