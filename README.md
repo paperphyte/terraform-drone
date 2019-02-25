@@ -17,9 +17,7 @@ required to run Drone CI/CD on AWS, including:
 Choose an AWS region with both [AWS Fargate with Amazon ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html) and [AWS Service Discovery ](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html)
 
 * Pre-existing EC2 key pair in AWS region
-    * Import an existing AWS keypair: 
-
-        $ terraform import aws_key_pair.ci_tool ci-tools
+    * Import an existing AWS keypair: terraform import aws_key_pair.ci_tool ci-tools
 
 Note: Add public_key with content of keypair_public_key to terraform.tfstate after import.
 
