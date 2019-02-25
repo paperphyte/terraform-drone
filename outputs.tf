@@ -1,6 +1,6 @@
 output "ci_server_url" {
   description = "public accessible url of the ci"
-  value       = "http://${aws_alb.front.dns_name}"
+  value       = "https://${aws_acm_certificate.cert.domain_name}"
 }
 
 output "ci_db_root_password" {
