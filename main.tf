@@ -68,6 +68,7 @@ module "ci_ecs_cluster" {
   aws_region           = "${var.aws_region}"
   instance_type        = "${var.ecs_cluster_instance_type}"
   ecs_optimized_ami    = "${var.ecs_optimized_ami}"
+  ip_access_whitelist  = "${var.ip_access_whitelist}"
 }
 
 module "load_balancer" {

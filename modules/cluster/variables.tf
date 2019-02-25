@@ -55,3 +55,8 @@ variable "cluster_name" {
   default     = "ci_server"
   description = "The name of the cluster"
 }
+
+variable "ip_access_whitelist" {
+  description = "White-list of who can access the ci server"
+  type        = "list"
+}
