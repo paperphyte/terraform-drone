@@ -78,3 +78,11 @@ resource "aws_ecs_service" "drone_server" {
     "aws_alb_listener.front_end",
   ]
 }
+
+resource "aws_appautoscaling_target" "ecs_drone_server" {
+  max_capacity       = 1
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.ci_server.name}/${aws_ecs_service.drone_server.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}

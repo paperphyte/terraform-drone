@@ -47,3 +47,11 @@ resource "aws_ecs_service" "drone_agent" {
   desired_count   = "${var.drone_agent_max_count}"
   task_definition = "${aws_ecs_task_definition.drone_agent.arn}"
 }
+
+resource "aws_appautoscaling_target" "drone_agent" {
+  max_capacity       = "${var.drone_agent_max_count}"
+  min_capacity       = "${var.drone_agent_min_count}"
+  resource_id        = "service/${aws_ecs_cluster.ci_server.name}/${aws_ecs_service.drone_agent.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
