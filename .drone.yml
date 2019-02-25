@@ -2,4 +2,4 @@ pipeline:
   backend:
     image: hashicorp/terraform:light
     commands:
-      - terraform validate -check-variables=false drone-ci/
+      - terraform validate -check-variables=false
