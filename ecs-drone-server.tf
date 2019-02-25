@@ -13,11 +13,11 @@ data "template_file" "drone_server_task_definition" {
   depends_on = ["random_string.drone_rpc_secret"]
 
   vars {
-    ci_db_host_name           = "${aws_db_instance.ci_db.address}"
-    ci_db_user                = "${var.ci_db_username}"
-    ci_db_password            = "${random_string.ci_db_password.result}"
-    ci_db_engine              = "${var.ci_db_engine}"
-    ci_db_port                = "${lookup(var.ci_db_engine_port, var.ci_db_engine)}"
+    ci_db_host_name           = "${module.ci_db.address}"
+    ci_db_user                = "${module.ci_db.user}"
+    ci_db_password            = "${module.ci_db.root_password}"
+    ci_db_engine              = "${module.ci_db.engine}"
+    ci_db_port                = "${module.ci_db.port}"
     container_cpu             = "${var.fargate_task_cpu}"
     container_memory          = "${var.fargate_task_memory}"
     log_group_region          = "${var.aws_region}"

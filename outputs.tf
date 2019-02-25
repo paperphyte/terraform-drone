@@ -4,7 +4,7 @@ output "ci_server_url" {
 }
 
 output "ci_db_root_password" {
-  value       = "${random_string.ci_db_password.result}"
+  value       = "${module.ci_db.root_password}"
   sensitive   = true
   description = "RDS database root user password"
 }
