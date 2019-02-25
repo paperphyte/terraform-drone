@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "drone_server" {
 
 resource "aws_ecs_service" "drone_server" {
   name            = "ci-server-drone-server"
-  cluster         = "${aws_ecs_cluster.ci_server.id}"
+  cluster         = "${module.ci_ecs_cluster.id}"
   task_definition = "${aws_ecs_task_definition.drone_server.arn}"
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -82,7 +82,7 @@ resource "aws_ecs_service" "drone_server" {
 resource "aws_appautoscaling_target" "ecs_drone_server" {
   max_capacity       = 1
   min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.ci_server.name}/${aws_ecs_service.drone_server.name}"
+  resource_id        = "service/${module.ci_ecs_cluster.name}/${aws_ecs_service.drone_server.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
