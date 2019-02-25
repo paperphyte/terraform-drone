@@ -1,10 +1,9 @@
 locals {
-  sub_domain               = "${var.ci_sub_domain}"
-  root_domain              = "${var.root_domain}"
-  subnet_id_1              = "${var.subnet_id_1}"
-  subnet_id_2              = "${var.subnet_id_2}"
-  vpc_id                   = "${var.vpc_id}"
-  target_security_group_id = "${var.target_security_group_id}"
+  sub_domain  = "${var.ci_sub_domain}"
+  root_domain = "${var.root_domain}"
+  subnet_id_1 = "${var.subnet_id_1}"
+  subnet_id_2 = "${var.subnet_id_2}"
+  vpc_id      = "${var.vpc_id}"
 }
 
 resource "aws_alb_target_group" "ci_server" {
@@ -26,7 +25,7 @@ resource "aws_alb_target_group" "ci_server" {
 resource "aws_alb" "front" {
   name            = "drone-front-alb"
   internal        = false
-  security_groups = ["${local.target_security_group_id}"]
+  security_groups = ["${aws_security_group.ci_server_web.id}"]
   subnets         = ["${local.subnet_id_1}", "${local.subnet_id_2}"]
 
   enable_deletion_protection = false
@@ -80,4 +79,38 @@ resource "aws_route53_record" "cert_validation" {
   zone_id = "${var.root_domain_zone_id}"
   records = ["${aws_acm_certificate.cert.domain_validation_options.0.resource_record_value}"]
   ttl     = "${var.default_ttl}"
+}
+
+resource "aws_security_group" "ci_server_web" {
+  description = "Restrict access to ALB"
+
+  vpc_id = "${local.vpc_id}"
+  name   = "ci-server-alb-sg"
+}
+
+resource "aws_security_group_rule" "ci_server_web_egress" {
+  type        = "egress"
+  description = "RDP s"
+  depends_on  = ["aws_security_group.ci_server_web"]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+
+  security_group_id = "${aws_security_group.ci_server_web.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_web_ingress" {
+  type        = "ingress"
+  description = "RDP p"
+  depends_on  = ["aws_security_group.ci_server_web"]
+  protocol    = "tcp"
+  from_port   = 443
+  to_port     = 443
+  cidr_blocks = "${var.ip_access_whitelist}"
+
+  security_group_id = "${aws_security_group.ci_server_web.id}"
 }

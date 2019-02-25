@@ -36,6 +36,7 @@ variable "target_port" {
   description = "target port"
 }
 
-variable "target_security_group_id" {
-  description = "security group of target"
+variable "ip_access_whitelist" {
+  description = "White-list of who can access the ci server"
+  type        = "list"
 }

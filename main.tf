@@ -102,15 +102,15 @@ module "ci_ecs_cluster" {
 }
 
 module "load_balancer" {
-  source                   = "./modules/lb"
-  ci_sub_domain            = "${var.ci_sub_domain}"
-  root_domain              = "${var.root_domain}"
-  vpc_id                   = "${aws_vpc.ci.id}"
-  subnet_id_1              = "${local.subnet_id_1}"
-  subnet_id_2              = "${local.subnet_id_2}"
-  root_domain_zone_id      = "${var.root_domain_zone_id}"
-  target_port              = "${var.drone_server_port}"
-  target_security_group_id = "${aws_security_group.ci_server_web.id}"
+  source              = "./modules/lb"
+  ci_sub_domain       = "${var.ci_sub_domain}"
+  root_domain         = "${var.root_domain}"
+  vpc_id              = "${aws_vpc.ci.id}"
+  subnet_id_1         = "${local.subnet_id_1}"
+  subnet_id_2         = "${local.subnet_id_2}"
+  root_domain_zone_id = "${var.root_domain_zone_id}"
+  target_port         = "${var.drone_server_port}"
+  ip_access_whitelist = "${var.alb_ingres_cidr_whitelist}"
 }
 
 module "build_agent" {
@@ -161,6 +161,6 @@ module "ci_server" {
   fargate_task_memory                = "${var.fargate_task_memory}"
   vpc_id                             = "${aws_vpc.ci.id}"
   cluster_instance_security_group_id = "${module.ci_ecs_cluster.cluster_instance_security_group_id}"
-  load_balancer_security_group_id    = "${aws_security_group.ci_server_web.id}"
+  load_balancer_security_group_id    = "${module.load_balancer.load_balancer_security_group_id}"
   build_agent_port                   = "${var.drone_agent_port}"
 }
