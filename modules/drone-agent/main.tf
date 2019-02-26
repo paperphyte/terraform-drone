@@ -55,8 +55,8 @@ resource "aws_ecs_service" "drone_agent" {
 }
 
 resource "aws_appautoscaling_target" "drone_agent" {
-  max_capacity       = "${var.min_container_count}"
-  min_capacity       = "${var.max_container_count}"
+  max_capacity       = "${var.max_container_count}"
+  min_capacity       = "${var.min_container_count}"
   resource_id        = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
