@@ -63,12 +63,12 @@ variable "ecs_cluster_instance_type" {
 
 variable "ecs_min_instances_count" {
   description = "Min container instances running"
-  default     = "2"
+  default     = "1"
 }
 
 variable "ecs_max_instances_count" {
   description = "Max container instances running."
-  default     = "2"
+  default     = "1"
 }
 
 variable "ecs_optimized_ami" {
@@ -132,7 +132,7 @@ variable "drone_agent_port" {
 
 variable "drone_agent_min_count" {
   description = "Min drone agens running."
-  default     = "2"
+  default     = "1"
 }
 
 variable "drone_agent_max_count" {
@@ -173,4 +173,34 @@ variable "env_drone_logs_debug" {
 
 variable "env_drone_repo_filter" {
   description = "whitliest repositories"
+}
+
+variable "ec2_volume_size" {
+  default     = "100"
+  description = "Size of ec2 disk in GB"
+}
+
+variable "cluster_spot_instance_enabled" {
+  default     = "1"
+  description = "Seed Cluster with spot priced ec2 instances 0/1 true/false"
+}
+
+variable "spot_fleet_target_capacity" {
+  default     = "1"
+  description = "Target number of spot instances to seed the cluster with"
+}
+
+variable "spot_fleet_bid_price" {
+  default     = "0.007"
+  description = "Bid price for cluster resources"
+}
+
+variable "spot_fleet_allocation_strategy" {
+  default     = "diversified"
+  description = "Strategy for seeding instances cross pools. Config only support one pool for now."
+}
+
+variable "spot_fleet_valid_until" {
+  description = "Amount of time a spot fleet bid should stay active"
+  default     = "2022-02-22T02:02:02Z"
 }

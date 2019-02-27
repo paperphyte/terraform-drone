@@ -5,7 +5,9 @@ locals {
   subnet_id_2                        = "${module.network.subnet_id_2}"
   vpc_id                             = "${module.network.vpc_id}"
   ci_server_app_security_group_id    = "${module.ci_server.ci_server_security_group_id}"
-  cluster_instance_security_group_id = "${module.ci_ecs_cluster.cluster_instance_security_group_id}"
+  cluster_instance_security_group_id = "${module.ci_ecs_cluster.instance_security_group_id}"
+  cluster_ami_image_id               = "${module.ci_ecs_cluster.ami_image_id}"
+  cluster_iam_instance_profile       = "${module.ci_ecs_cluster.iam_instance_profile}"
   load_balancer_security_group_id    = "${module.load_balancer.load_balancer_security_group_id}"
   server_log_group_arn               = "${module.ci_server.drone_server_log_group_arn}"
   agent_log_group_arn                = "${module.build_agent.drone_agent_log_group_arn}"
@@ -69,6 +71,29 @@ module "ci_ecs_cluster" {
   instance_type        = "${var.ecs_cluster_instance_type}"
   ecs_optimized_ami    = "${var.ecs_optimized_ami}"
   ip_access_whitelist  = "${var.ip_access_whitelist}"
+}
+
+module "ci_ecs_cluster_spotfleet" {
+  source                             = "./modules/spotfleet"
+  cluster_spot_instance_enabled      = "${var.cluster_spot_instance_enabled}"
+  server_log_group_arn               = "${local.server_log_group_arn}"
+  agent_log_group_arn                = "${local.agent_log_group_arn}"
+  subnet_id_1                        = "${local.subnet_id_1}"
+  subnet_id_2                        = "${local.subnet_id_2}"
+  keypair_name                       = "${local.keypair_name}"
+  cluster_instance_security_group_id = "${local.cluster_instance_security_group_id}"
+  cluster_ami_image_id               = "${local.cluster_ami_image_id}"
+  cluster_name                       = "${local.cluster_name}"
+  cluster_iam_instance_profile       = "${local.cluster_iam_instance_profile}"
+  ci_sub_domain                      = "${var.ci_sub_domain}"
+  root_domain                        = "${var.root_domain}"
+  instance_type                      = "${var.ecs_cluster_instance_type}"
+  ec2_volume_size                    = "${var.ec2_volume_size}"
+
+  target_capacity     = "${var.spot_fleet_target_capacity}"
+  bid_price           = "${var.spot_fleet_bid_price}"
+  allocation_strategy = "${var.spot_fleet_allocation_strategy}"
+  valid_until         = "${var.spot_fleet_valid_until}"
 }
 
 module "load_balancer" {

@@ -62,7 +62,7 @@ resource "aws_launch_configuration" "ci_server_app" {
   }
 
   root_block_device {
-    volume_size = "100"
+    volume_size = "${var.ec2_volume_size}"
   }
 }
 

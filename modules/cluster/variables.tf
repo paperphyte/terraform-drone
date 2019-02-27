@@ -60,3 +60,8 @@ variable "ip_access_whitelist" {
   description = "White-list of who can access the ci server"
   type        = "list"
 }
+
+variable "ec2_volume_size" {
+  default     = "100"
+  description = "Size of ec2 disk in GB"
+}
