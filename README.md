@@ -8,25 +8,56 @@ required to run Drone CI/CD on AWS, including:
  * Application Load Balancer (ALB)
  * Domain name using AWS Route53 which points to ALB
  * AWS Elastic Cloud Service (ECS) and AWS Fargate running Drone Server
+ * AWS Spot Fleet for EC2 instances in ECS
  * Postgres flavoured RDS for build data
+
+## AWS Spot Fleet
+
+AWS Spot fleet could be used to get more cheap agents in the cluster.
+
+With *cluster_spot_instance_enabled* = 1/true the cluster will be seeded with 
+spot instances until reaching number of *spot_fleet_target_capacity*.  
+
+Set the *spot_fleet_bid_price"* with a value corresponding to the region and
+the *ecs_cluster_instance_type* in ecs cluster.
+
+Combining *ecs_min_instances_count* and *ecs_max_instances_count* with the 
+spot fleet will mix regular on-demand instances with spot priced instances.
+
+Default is 1 on-demand instance and 1 spot fleet instance. When running with 
+*ecs_min_instances_count* = 0 and *ecs_max_instances_count* = 0 the build 
+agent cluster will be possible only with spot priced instances. This could
+however mean that there sometimes are no agents.
 
 ## Configuration
 
-* Pre-existing AWS Route53 public zone
-
 Choose an AWS region with both [AWS Fargate with Amazon ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html) and [AWS Service Discovery ](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html)
 
-* Pre-existing EC2 key pair in AWS region
-    * Import an existing AWS keypair: terraform import aws_key_pair.ci_tool ci-tools
+See terraform.tfvars.sample for required configuration.
 
-Note: Add public_key with content of keypair_public_key to terraform.tfstate after import.
+The *root_domain_zone_id* should be a pre-existing AWS Route53 public zone
+The *keypair_public_key* can be from key generated locally from key.
+OR imported with _terraform import aws_key_pair.ci_tool ci-tools_
+WHEN imported remember to add _public_key_ to terraform.tfstate.
+
+"resources": {
+  "aws_key_pair.ci_tool": {
+    "type": "aws_key_pair",
+    ..
+    "primary": {
+      ..
+      "attributes": {
+        ..
+        "public_key": "<contents of keypair_public_key var>
 
 ## Inputs
+
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | aws\_region | AWS region where the CI/CD gets deployed | string | `"eu-west-1"` | no |
 | ci\_sub\_domain | Sub-domain / hostname to access ci | string | `"ci"` | no |
+| cluster\_spot\_instance\_enabled | Seed Cluster with spot priced ec2 instances 0/1 true/false | string | `"1"` | no |
 | db\_identifier | Identifier for RDS instance | string | `"ci-rds"` | no |
 | db\_instance\_type | RDS instance types | string | `"db.t3.micro"` | no |
 | db\_name | Database Name | string | `"ci_db"` | no |
@@ -34,15 +65,16 @@ Note: Add public_key with content of keypair_public_key to terraform.tfstate aft
 | db\_user | Database user name | string | `"ci_user"` | no |
 | default\_ttl | Default ttl for domain records | string | `"300"` | no |
 | drone\_agent\_max\_count | Max drone agents running. | string | `"2"` | no |
-| drone\_agent\_min\_count | Min drone agens running. | string | `"2"` | no |
+| drone\_agent\_min\_count | Min drone agens running. | string | `"1"` | no |
 | drone\_agent\_port | Port of drone agent. | string | `"80"` | no |
 | drone\_server\_port | Port of Drone Server | string | `"80"` | no |
 | drone\_version | Ci Drone version. | string | `"1.0.0-rc.5"` | no |
+| ec2\_volume\_size | Size of ec2 disk in GB | string | `"100"` | no |
 | ecs\_cluster\_instance\_type | EC2 Instance Type. | string | `"t3.micro"` | no |
 | ecs\_container\_cpu | Requested ecs container CPU | string | `"2000"` | no |
 | ecs\_container\_memory | Requested ecs container memory | string | `"768"` | no |
-| ecs\_max\_instances\_count | Max container instances running. | string | `"2"` | no |
-| ecs\_min\_instances\_count | Min container instances running | string | `"2"` | no |
+| ecs\_max\_instances\_count | Max container instances running. | string | `"1"` | no |
+| ecs\_min\_instances\_count | Min container instances running | string | `"1"` | no |
 | ecs\_optimized\_ami |  | map | `<map>` | no |
 | env\_drone\_admin | Drone privileged User | string | n/a | yes |
 | env\_drone\_github\_organization | Registration is limited to users included in this list, or users that are members of organizations included in this list. | string | n/a | yes |
@@ -57,7 +89,10 @@ Note: Add public_key with content of keypair_public_key to terraform.tfstate aft
 | keypair\_public\_key | Pubkey of A pre-existing keypair | string | n/a | yes |
 | root\_domain | Pre-existing Route53 Hosted Zone domain | string | `"example.com"` | no |
 | root\_domain\_zone\_id | Pre-existing Route53 Hosted Zone ID | string | n/a | yes |
-
+| spot\_fleet\_allocation\_strategy | Strategy for seeding instances cross pools. Config only support one pool for now. | string | `"diversified"` | no |
+| spot\_fleet\_bid\_price | Bid price for cluster resources | string | `"0.007"` | no |
+| spot\_fleet\_target\_capacity | Target number of spot instances to seed the cluster with | string | `"1"` | no |
+| spot\_fleet\_valid\_until | Amount of time a spot fleet bid should stay active | string | `"2022-02-22T02:02:02Z"` | no |
 
 ## Outputs
 
