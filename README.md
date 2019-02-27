@@ -15,17 +15,17 @@ required to run Drone CI/CD on AWS, including:
 
 AWS Spot fleet could be used to get more cheap agents in the cluster.
 
-With *cluster_spot_instance_enabled* = 1/true the cluster will be seeded with 
-spot instances until reaching number of *spot_fleet_target_capacity*.  
+With **cluster_spot_instance_enabled** = 1/true the cluster will be seeded with 
+spot instances until reaching number of **spot_fleet_target_capacity**.  
 
-Set the *spot_fleet_bid_price"* with a value corresponding to the region and
-the *ecs_cluster_instance_type* in ecs cluster.
+Set the **spot_fleet_bid_price** with a value corresponding to the region and
+the **ecs_cluster_instance_type** in ecs cluster.
 
-Combining *ecs_min_instances_count* and *ecs_max_instances_count* with the 
+Combining **ecs_min_instances_count** and **ecs_max_instances_count** with the 
 spot fleet will mix regular on-demand instances with spot priced instances.
 
 Default is 1 on-demand instance and 1 spot fleet instance. When running with 
-*ecs_min_instances_count* = 0 and *ecs_max_instances_count* = 0 the build 
+**ecs_min_instances_count** = 0 and **ecs_max_instances_count** = 0 the build 
 agent cluster will be possible only with spot priced instances. This could
 however mean that there sometimes are no agents.
 
@@ -35,20 +35,20 @@ Choose an AWS region with both [AWS Fargate with Amazon ECS](https://docs.aws.am
 
 See terraform.tfvars.sample for required configuration.
 
-The *root_domain_zone_id* should be a pre-existing AWS Route53 public zone
-The *keypair_public_key* can be from key generated locally from key.
+The **root_domain_zone_id** should be a pre-existing AWS Route53 public zone
+The **keypair_public_key** can be from key generated locally from key.
 OR imported with _terraform import aws_key_pair.ci_tool ci-tools_
 WHEN imported remember to add _public_key_ to terraform.tfstate.
 
-"resources": {
-  "aws_key_pair.ci_tool": {
-    "type": "aws_key_pair",
-    ..
-    "primary": {
-      ..
-      "attributes": {
+    "resources": {
+      "aws_key_pair.ci_tool": {
+        "type": "aws_key_pair",
         ..
-        "public_key": "<contents of keypair_public_key var>
+        "primary": {
+          ..
+          "attributes": {
+            ..
+            "public_key": "<contents of keypair_public_key var>
 
 ## Inputs
 
