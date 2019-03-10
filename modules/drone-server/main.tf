@@ -1,4 +1,4 @@
-locals {
+ocals {
   sub_domain  = "${var.ci_sub_domain}"
   root_domain = "${var.root_domain}"
 
@@ -100,7 +100,7 @@ resource "aws_appautoscaling_target" "ecs_drone_server" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "ci" {
-  name        = "${var.service_discovery_private_namespace}"
+  name        = "${local.sub_domain}${var.service_discovery_private_namespace}"
   description = "Private DNS ci-server"
   vpc         = "${local.vpc_id}"
 }
@@ -134,8 +134,6 @@ data "template_file" "ci_server_ecs_profile" {
 }
 
 resource "aws_iam_role" "ci_server_ecs_task" {
-  name = "ci_server_ecs_task_role"
-
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -154,7 +152,6 @@ EOF
 }
 
 resource "aws_iam_role_policy" "ci_server_ecs" {
-  name   = "ci-server-ecs-policy"
   role   = "${aws_iam_role.ci_server_ecs_task.name}"
   policy = "${data.template_file.ci_server_ecs_profile.rendered}"
 }
@@ -202,5 +199,5 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
 
   cidr_blocks = "${var.ip_access_whitelist}"
 
-  security_group_id        = "${aws_security_group.ci_server_app.id}"
+  security_group_id = "${aws_security_group.ci_server_app.id}"
 }

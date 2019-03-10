@@ -204,3 +204,8 @@ variable "spot_fleet_valid_until" {
   description = "Amount of time a spot fleet bid should stay active"
   default     = "2022-02-22T02:02:02Z"
 }
+
+variable "update_dns_lambda_name" {
+  description = "Function name for lambda used to update DNS of drone server"
+  default     = "update_drone_ci_domain"
+}

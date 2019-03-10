@@ -10,3 +10,7 @@ provider "random" {
 provider "template" {
   version = "~> 2.0"
 }
+
+provider "archive" {
+  version = "~> 1.1"
+}

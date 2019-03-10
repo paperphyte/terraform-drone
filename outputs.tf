@@ -1,5 +1,3 @@
-
-
 output "ci_db_root_password" {
   value       = "${module.ci_db.root_password}"
   sensitive   = true

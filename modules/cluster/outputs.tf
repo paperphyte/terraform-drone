@@ -13,6 +13,11 @@ output "name" {
   description = "Name for cluster"
 }
 
+output "arn" {
+  value       = "${aws_ecs_cluster.ci_server.arn}"
+  description = "Name for cluster"
+}
+
 output "ami_image_id" {
   value       = "${data.aws_ami.amazon_linux_2.image_id}"
   description = "Image ID for ec2 cluster instances"

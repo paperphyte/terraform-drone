@@ -13,12 +13,14 @@ locals {
   rpc_server_url                     = "${module.ci_server.rpc_server_url}"
   cluster_id                         = "${module.ci_ecs_cluster.id}"
   cluster_name                       = "${module.ci_ecs_cluster.name}"
+  cluster_arn                        = "${module.ci_ecs_cluster.arn}"
   db_host_name                       = "${module.ci_db.address}"
   db_user                            = "${module.ci_db.user}"
   db_password                        = "${module.ci_db.root_password}"
   db_engine                          = "${module.ci_db.engine}"
   db_port                            = "${module.ci_db.port}"
   cluster_instance_user_data         = "${module.ci_ecs_cluster.instance_user_data}"
+  ci_server_service_name             = "${module.ci_server.service_name}"
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -145,4 +147,13 @@ module "ci_server" {
   app_port                           = "${var.drone_server_port}"
   build_agent_port                   = "${var.drone_agent_port}"
   ip_access_whitelist                = "${var.ip_access_whitelist}"
+}
+
+module "dns_update" {
+  source                 = "./modules/dns-update"
+  cluster_arn            = "${local.cluster_arn}"
+  ecs_service_name       = "${local.ci_server_service_name}"
+  task_domain_name       = "${var.ci_sub_domain}.${var.root_domain}"
+  route53_hosted_zone_id = "${var.root_domain_zone_id}"
+  function_name          = "${var.update_dns_lambda_name}"
 }

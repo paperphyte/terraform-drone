@@ -25,7 +25,6 @@ data "template_file" "spotfleet_profile" {
 
 resource "aws_iam_role" "spotfleet" {
   count = "${var.cluster_spot_instance_enabled}"
-  name  = "ecs-ec2-spotfleet-role"
   tags  = "${map("Name", "${local.sub_domain}.${local.root_domain}")}"
 
   assume_role_policy = <<EOF
@@ -47,7 +46,6 @@ EOF
 
 resource "aws_iam_role_policy" "spotfleet" {
   count  = "${var.cluster_spot_instance_enabled}"
-  name   = "drone-fleet-role"
   role   = "${aws_iam_role.spotfleet.name}"
   policy = "${data.template_file.spotfleet_profile.rendered}"
 }

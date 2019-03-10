@@ -10,3 +10,7 @@ output "drone_server_log_group_arn" {
 output "ci_server_security_group_id" {
   value = "${aws_security_group.ci_server_app.id}"
 }
+
+output "service_name" {
+  value = "${aws_ecs_service.drone_server.name}"
+}

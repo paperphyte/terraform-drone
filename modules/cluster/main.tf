@@ -67,12 +67,10 @@ resource "aws_launch_configuration" "ci_server_app" {
 }
 
 resource "aws_iam_instance_profile" "ci_server" {
-  name = "ecs-ec2-instprofile"
   role = "${aws_iam_role.drone_agent.name}"
 }
 
 resource "aws_iam_role" "drone_agent" {
-  name = "ecs-ec2-role"
   tags = "${map("Name", "${local.sub_domain}.${local.root_domain}")}"
 
   assume_role_policy = <<EOF
@@ -102,7 +100,6 @@ data "template_file" "ec2_profile" {
 }
 
 resource "aws_iam_role_policy" "ec2" {
-  name   = "drone-ec2-role"
   role   = "${aws_iam_role.drone_agent.name}"
   policy = "${data.template_file.ec2_profile.rendered}"
 }

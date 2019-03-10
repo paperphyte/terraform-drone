@@ -87,7 +87,7 @@ variable "agent_log_group_arn" {
 }
 
 variable "service_discovery_private_namespace" {
-  default     = "ci-tool.local"
+  default     = "-tool.local"
   description = "private dns namepace"
 }
 
