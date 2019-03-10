@@ -12,12 +12,11 @@ locals {
   cluster_id   = "${var.cluster_id}"
   vpc_id       = "${var.vpc_id}"
 
-  target_group_arn                   = "${var.target_group_arn}"
   subnet_id_1                        = "${var.subnet_id_1}"
   subnet_id_2                        = "${var.subnet_id_2}"
   rpc_secret                         = "${var.rpc_secret}"
   cluster_instance_security_group_id = "${var.cluster_instance_security_group_id}"
-  load_balancer_security_group_id    = "${var.load_balancer_security_group_id}"
+  ip_access_whitelist                = "${var.ip_access_whitelist}"
 }
 
 resource "aws_cloudwatch_log_group" "drone_server" {
@@ -81,12 +80,6 @@ resource "aws_ecs_service" "drone_server" {
     security_groups  = ["${aws_security_group.ci_server_app.id}"]
     subnets          = ["${local.subnet_id_1}", "${local.subnet_id_2}"]
     assign_public_ip = true
-  }
-
-  load_balancer {
-    target_group_arn = "${local.target_group_arn}"
-    container_name   = "ci-server-drone-server"
-    container_port   = "${var.app_port}"
   }
 
   service_registries {
@@ -207,6 +200,7 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
   from_port   = "${var.app_port}"
   to_port     = "${var.app_port}"
 
-  source_security_group_id = "${local.load_balancer_security_group_id}"
+  cidr_blocks = "${var.ip_access_whitelist}"
+
   security_group_id        = "${aws_security_group.ci_server_app.id}"
 }

@@ -8,13 +8,11 @@ locals {
   cluster_instance_security_group_id = "${module.ci_ecs_cluster.instance_security_group_id}"
   cluster_ami_image_id               = "${module.ci_ecs_cluster.ami_image_id}"
   cluster_iam_instance_profile       = "${module.ci_ecs_cluster.iam_instance_profile}"
-  load_balancer_security_group_id    = "${module.load_balancer.load_balancer_security_group_id}"
   server_log_group_arn               = "${module.ci_server.drone_server_log_group_arn}"
   agent_log_group_arn                = "${module.build_agent.drone_agent_log_group_arn}"
   rpc_server_url                     = "${module.ci_server.rpc_server_url}"
   cluster_id                         = "${module.ci_ecs_cluster.id}"
   cluster_name                       = "${module.ci_ecs_cluster.name}"
-  target_group_arn                   = "${module.load_balancer.target_group_arn}"
   db_host_name                       = "${module.ci_db.address}"
   db_user                            = "${module.ci_db.user}"
   db_password                        = "${module.ci_db.root_password}"
@@ -98,18 +96,6 @@ module "ci_ecs_cluster_spotfleet" {
   valid_until         = "${var.spot_fleet_valid_until}"
 }
 
-module "load_balancer" {
-  source              = "./modules/lb"
-  vpc_id              = "${local.vpc_id}"
-  subnet_id_1         = "${local.subnet_id_1}"
-  subnet_id_2         = "${local.subnet_id_2}"
-  ci_sub_domain       = "${var.ci_sub_domain}"
-  root_domain         = "${var.root_domain}"
-  root_domain_zone_id = "${var.root_domain_zone_id}"
-  target_port         = "${var.drone_server_port}"
-  ip_access_whitelist = "${var.ip_access_whitelist}"
-}
-
 module "build_agent" {
   source              = "./modules/drone-agent"
   rpc_server          = "${local.rpc_server_url}"
@@ -138,12 +124,10 @@ module "ci_server" {
   agent_log_group_arn                = "${local.agent_log_group_arn}"
   cluster_name                       = "${local.cluster_name}"
   cluster_id                         = "${local.cluster_id}"
-  target_group_arn                   = "${local.target_group_arn}"
   subnet_id_1                        = "${local.subnet_id_1}"
   subnet_id_2                        = "${local.subnet_id_2}"
   vpc_id                             = "${local.vpc_id}"
   cluster_instance_security_group_id = "${local.cluster_instance_security_group_id}"
-  load_balancer_security_group_id    = "${local.load_balancer_security_group_id}"
   env_github_client                  = "${var.env_github_client}"
   env_github_secret                  = "${var.env_github_secret}"
   env_drone_admin                    = "${var.env_drone_admin}"
@@ -160,4 +144,5 @@ module "ci_server" {
   app_debug                          = "${var.env_drone_logs_debug}"
   app_port                           = "${var.drone_server_port}"
   build_agent_port                   = "${var.drone_agent_port}"
+  ip_access_whitelist                = "${var.ip_access_whitelist}"
 }
