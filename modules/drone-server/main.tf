@@ -1,4 +1,4 @@
-ocals {
+locals {
   sub_domain  = "${var.ci_sub_domain}"
   root_domain = "${var.root_domain}"
 
