@@ -21,9 +21,10 @@
       { "name": "DRONE_USER_CREATE", "value": "username:${drone_admin},machine:false,admin:true" },
       { "name": "DRONE_USER_FILTER", "value": "username:${drone_github_organization}" },
       { "name": "DRONE_DATABASE_DRIVER", "value": "${db_engine}" },
-      { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}"},
-      { "name": "DRONE_REPOSITORY_FILTER", "value": "${drone_repository_filter}"},
-      { "name": "DRONE_DATABASE_DATASOURCE", "value": "postgres://${db_user}:${db_password}@${db_host_name}:${db_port}/postgres?sslmode=disable" }
+      { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}" },
+      { "name": "DRONE_REPOSITORY_FILTER", "value": "${drone_repository_filter}" },
+      { "name": "DRONE_DATABASE_DATASOURCE", "value": "postgres://${db_user}:${db_password}@${db_host_name}:${db_port}/postgres?sslmode=disable" },
+      { "name": "DRONE_AGENTS_ENABLED", "value": "${drone_agents_enabled}" }
     ],
     "logConfiguration": {
       "logDriver": "awslogs",

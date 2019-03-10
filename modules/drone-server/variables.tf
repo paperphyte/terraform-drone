@@ -65,6 +65,11 @@ variable "env_drone_logs_debug" {
 
 variable "env_drone_repo_filter" {}
 
+variable "env_drone_agents_enabled" {
+  default     = "true"
+  description = "supported values are [true] one must set explicit since 1-0-0-rc-6 "
+}
+
 variable "vpc_id" {
   description = "Id for vpc"
 }

@@ -51,6 +51,7 @@ data "template_file" "drone_server_task_definition" {
     drone_github_organization = "${var.env_drone_github_organization}"
     drone_webhook_list        = "${var.env_drone_webhook_list}"
     drone_repository_filter   = "${var.env_drone_repo_filter}"
+    drone_agents_enabled      = "${var.env_drone_agents_enabled}"
   }
 }
 

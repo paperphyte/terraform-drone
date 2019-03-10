@@ -142,7 +142,7 @@ variable "drone_agent_max_count" {
 
 variable "drone_version" {
   description = "Ci Drone version."
-  default     = "1.0.0-rc.5"
+  default     = "1.0.0-rc.6"
 }
 
 variable "env_github_client" {
