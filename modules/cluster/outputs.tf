@@ -22,3 +22,8 @@ output "iam_instance_profile" {
   value       = "${aws_iam_instance_profile.ci_server.name}"
   description = "Instance Profile name of cluster ec2 instances"
 }
+
+output "instance_user_data" {
+  value       = "${data.template_file.cloud_config.rendered}"
+  description = "User data for launching new spot instance"
+}

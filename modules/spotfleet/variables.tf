@@ -70,3 +70,7 @@ variable "cluster_name" {
 variable "cluster_spot_instance_enabled" {
   description = "Seeding using spot instances enabled"
 }
+
+variable "cluster_instance_user_data" {
+  description = "User data for launching new spot instance"
+}

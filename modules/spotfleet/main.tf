@@ -10,6 +10,7 @@ locals {
   cluster_iam_instance_profile       = "${var.cluster_iam_instance_profile}"
   cluster_instance_security_group_id = "${var.cluster_instance_security_group_id}"
   cluster_name                       = "${var.cluster_name}"
+  user_data                          = "${var.cluster_instance_user_data}"
 }
 
 data "template_file" "spotfleet_profile" {
@@ -51,15 +52,6 @@ resource "aws_iam_role_policy" "spotfleet" {
   policy = "${data.template_file.spotfleet_profile.rendered}"
 }
 
-data "template_file" "cloud_config" {
-  count    = "${var.cluster_spot_instance_enabled}"
-  template = "${file("${path.module}/templates/cloud-config.yml")}"
-
-  vars {
-    ecs_cluster_name = "${local.cluster_name}"
-  }
-}
-
 resource "aws_spot_fleet_request" "main" {
   count                               = "${var.cluster_spot_instance_enabled}"
   iam_fleet_role                      = "${aws_iam_role.spotfleet.arn}"
@@ -68,6 +60,7 @@ resource "aws_spot_fleet_request" "main" {
   target_capacity                     = "${var.target_capacity}"
   terminate_instances_with_expiration = true
   valid_until                         = "${var.valid_until}"
+  replace_unhealthy_instances         = true
 
   launch_specification {
     tags                 = "${map("Name", "${local.sub_domain}.${local.root_domain}")}"
@@ -86,6 +79,6 @@ resource "aws_spot_fleet_request" "main" {
       "${local.cluster_instance_security_group_id}",
     ]
 
-    user_data = "${data.template_file.cloud_config.rendered}"
+    user_data = "${local.user_data}"
   }
 }

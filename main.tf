@@ -20,6 +20,7 @@ locals {
   db_password                        = "${module.ci_db.root_password}"
   db_engine                          = "${module.ci_db.engine}"
   db_port                            = "${module.ci_db.port}"
+  cluster_instance_user_data         = "${module.ci_ecs_cluster.instance_user_data}"
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -85,6 +86,7 @@ module "ci_ecs_cluster_spotfleet" {
   cluster_ami_image_id               = "${local.cluster_ami_image_id}"
   cluster_name                       = "${local.cluster_name}"
   cluster_iam_instance_profile       = "${local.cluster_iam_instance_profile}"
+  cluster_instance_user_data         = "${local.cluster_instance_user_data}"
   ci_sub_domain                      = "${var.ci_sub_domain}"
   root_domain                        = "${var.root_domain}"
   instance_type                      = "${var.ecs_cluster_instance_type}"
