@@ -8,6 +8,10 @@
       {
         "containerPort": ${drone_server_port},
         "protocol": "tcp"
+      },
+      {
+        "containerPort": ${drone_auto_cert_port},
+        "protocol": "tcp"
       }
     ],
     "environment": [
@@ -15,8 +19,8 @@
       { "name": "DRONE_GITHUB_CLIENT_ID", "value": "${drone_github_client}" },
       { "name": "DRONE_GITHUB_CLIENT_SECRET", "value": "${drone_github_secret}" },
       { "name": "DRONE_RPC_SECRET", "value": "${drone_rpc_secret}" },
-      { "name": "DRONE_RPC_SERVER", "value": "http://${drone_rpc_server}" },
-      { "name": "DRONE_SERVER_PROTO", "value": "http" },
+      { "name": "DRONE_RPC_SERVER", "value": "${drone_server_proto}://${drone_rpc_server}" },
+      { "name": "DRONE_SERVER_PROTO", "value": "${drone_server_proto}" },
       { "name": "DRONE_SERVER_HOST", "value": "${drone_rpc_server}" },
       { "name": "DRONE_USER_CREATE", "value": "username:${drone_admin},machine:false,admin:true" },
       { "name": "DRONE_USER_FILTER", "value": "username:${drone_github_organization}" },
@@ -24,7 +28,9 @@
       { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}" },
       { "name": "DRONE_REPOSITORY_FILTER", "value": "${drone_repository_filter}" },
       { "name": "DRONE_DATABASE_DATASOURCE", "value": "postgres://${db_user}:${db_password}@${db_host_name}:${db_port}/postgres?sslmode=disable" },
-      { "name": "DRONE_AGENTS_ENABLED", "value": "${drone_agents_enabled}" }
+      { "name": "DRONE_AGENTS_ENABLED", "value": "${drone_agents_enabled}" },
+      { "name": "DRONE_TLS_AUTOCERT", "value": "${drone_auto_cert}" },
+      { "name": "DRONE_HTTP_SSL_REDIRECT", "value": "${drone_http_ssl_redirect}" }
     ],
     "logConfiguration": {
       "logDriver": "awslogs",

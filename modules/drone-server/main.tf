@@ -51,6 +51,10 @@ data "template_file" "drone_server_task_definition" {
     drone_webhook_list        = "${var.env_drone_webhook_list}"
     drone_repository_filter   = "${var.env_drone_repo_filter}"
     drone_agents_enabled      = "${var.env_drone_agents_enabled}"
+    drone_auto_cert           = "${var.env_drone_auto_cert}"
+    drone_server_proto        = "${var.env_drone_server_proto}"
+    drone_auto_cert_port      = "${var.drone_auto_cert_port}"
+    drone_http_ssl_redirect   = "${var.env_drone_http_ssl_redirect}"
   }
 }
 
@@ -198,6 +202,21 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
   to_port     = "${var.app_port}"
 
   cidr_blocks = "${var.ip_access_whitelist}"
+
+  security_group_id = "${aws_security_group.ci_server_app.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress3" {
+  type        = "ingress"
+  description = "Security Group Rule used during auto cert"
+  depends_on  = ["aws_security_group.ci_server_app"]
+  protocol    = "tcp"
+  from_port   = "${var.drone_auto_cert_port}"
+  to_port     = "${var.drone_auto_cert_port}"
+
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
 
   security_group_id = "${aws_security_group.ci_server_app.id}"
 }

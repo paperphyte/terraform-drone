@@ -70,6 +70,26 @@ variable "env_drone_agents_enabled" {
   description = "supported values are [true] one must set explicit since 1-0-0-rc-6 "
 }
 
+variable "env_drone_http_ssl_redirect" {
+  default     = "true"
+  description = "If is set to true, then only allow HTTPS requests."
+}
+
+variable "env_drone_auto_cert" {
+  default     = "true"
+  description = "auto cert drone supported [true]"
+}
+
+variable "env_drone_server_proto" {
+  default     = "https"
+  description = "server protocol"
+}
+
+variable "drone_auto_cert_port" {
+  default     = 80
+  description = "port used during auto cert"
+}
+
 variable "vpc_id" {
   description = "Id for vpc"
 }
