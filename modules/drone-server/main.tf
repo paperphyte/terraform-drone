@@ -12,11 +12,14 @@ locals {
   cluster_id   = "${var.cluster_id}"
   vpc_id       = "${var.vpc_id}"
 
+  target_group_arn                   = "${var.target_group_arn}"
   subnet_id_1                        = "${var.subnet_id_1}"
   subnet_id_2                        = "${var.subnet_id_2}"
   rpc_secret                         = "${var.rpc_secret}"
   cluster_instance_security_group_id = "${var.cluster_instance_security_group_id}"
+  load_balancer_security_group_id    = "${var.load_balancer_security_group_id}"
   ip_access_whitelist                = "${var.ip_access_whitelist}"
+  run_with_load_balancer             = "${var.run_with_load_balancer}"
 }
 
 resource "aws_cloudwatch_log_group" "drone_server" {
@@ -73,6 +76,7 @@ resource "aws_ecs_task_definition" "drone_server" {
 }
 
 resource "aws_ecs_service" "drone_server" {
+  count           = "${local.run_with_load_balancer == false ? 1 : 0}"
   name            = "ci-server-drone-server"
   cluster         = "${local.cluster_id}"
   task_definition = "${aws_ecs_task_definition.drone_server.arn}"
@@ -95,7 +99,47 @@ resource "aws_ecs_service" "drone_server" {
   ]
 }
 
+resource "aws_ecs_service" "drone_server_lb" {
+  count           = "${local.run_with_load_balancer == true ? 1 : 0}"
+  name            = "ci-server-drone-server"
+  cluster         = "${local.cluster_id}"
+  task_definition = "${aws_ecs_task_definition.drone_server.arn}"
+  desired_count   = 1
+  launch_type     = "FARGATE"
+  depends_on      = ["aws_ecs_task_definition.drone_server"]
+
+  network_configuration {
+    security_groups  = ["${aws_security_group.ci_server_app.id}"]
+    subnets          = ["${local.subnet_id_1}", "${local.subnet_id_2}"]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = "${local.target_group_arn}"
+    container_name   = "ci-server-drone-server"
+    container_port   = "${var.app_port}"
+  }
+
+  service_registries {
+    registry_arn = "${aws_service_discovery_service.ci_server.arn}"
+  }
+
+  depends_on = [
+    "aws_alb_listener.front_end",
+  ]
+}
+
+resource "aws_appautoscaling_target" "ecs_drone_server_lb" {
+  count              = "${local.run_with_load_balancer == true ? 1 : 0}"
+  max_capacity       = 1
+  min_capacity       = 1
+  resource_id        = "service/${local.cluster_name}/${aws_ecs_service.drone_server_lb.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
 resource "aws_appautoscaling_target" "ecs_drone_server" {
+  count              = "${local.run_with_load_balancer == false ? 1 : 0}"
   max_capacity       = 1
   min_capacity       = 1
   resource_id        = "service/${local.cluster_name}/${aws_ecs_service.drone_server.name}"
@@ -193,9 +237,24 @@ resource "aws_security_group_rule" "ci_server_app_ingress" {
   security_group_id        = "${aws_security_group.ci_server_app.id}"
 }
 
-resource "aws_security_group_rule" "ci_server_app_ingress2" {
+resource "aws_security_group_rule" "ci_server_app_ingress4" {
+  count       = "${local.run_with_load_balancer == true ? 1 : 0}"
   type        = "ingress"
-  description = "RDP v"
+  description = "Security Group allowing loadbalancer access drone"
+  depends_on  = ["aws_security_group.ci_server_app"]
+  protocol    = "tcp"
+  from_port   = "${var.app_port}"
+  to_port     = "${var.app_port}"
+
+  source_security_group_id = "${local.cluster_instance_security_group_id}"
+  security_group_id        = "${aws_security_group.ci_server_app.id}"
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress2" {
+  count = "${local.run_with_load_balancer == false ? 1 : 0}"
+
+  type        = "ingress"
+  description = "Security Group enabling public access to drone"
   depends_on  = ["aws_security_group.ci_server_app"]
   protocol    = "tcp"
   from_port   = "${var.app_port}"

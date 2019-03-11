@@ -27,3 +27,7 @@ variable "log_retention" {
   description = "Retention in days to keep logs"
   default     = 3
 }
+
+variable "module_is_disabled" {
+  description = "enable module"
+}

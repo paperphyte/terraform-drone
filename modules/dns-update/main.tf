@@ -4,9 +4,11 @@ locals {
   route53_hosted_zone_id = "${var.route53_hosted_zone_id}"
   function_name          = "${var.function_name}"
   ecs_service_name       = "${var.ecs_service_name}"
+  enabled                = "${var.module_is_disabled}"
 }
 
 resource "aws_lambda_function" "update_dns_on_state_change" {
+  count            = "${local.enabled == false ? 1 : 0}"
   filename         = "${local.function_name}.zip"
   function_name    = "${local.function_name}"
   handler          = "update-dns.handler"
@@ -17,6 +19,8 @@ resource "aws_lambda_function" "update_dns_on_state_change" {
 }
 
 data "template_file" "update_dns_on_state_change_lambda" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   template = "${file("${path.module}/templates/update-dns.js")}"
 
   vars {
@@ -30,6 +34,8 @@ data "template_file" "update_dns_on_state_change_lambda" {
 }
 
 data "archive_file" "update_dns_zip" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   type        = "zip"
   output_path = "${local.function_name}.zip"
 
@@ -40,11 +46,15 @@ data "archive_file" "update_dns_zip" {
 }
 
 resource "aws_cloudwatch_log_group" "update_dns_log_group" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   name              = "/aws/lambda/${aws_lambda_function.update_dns_on_state_change.function_name}"
   retention_in_days = "${var.log_retention}"
 }
 
 data "template_file" "update_dns_state_changer_profile" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   template = "${file("${path.module}/templates/update-dns-policy.json")}"
 
   vars {
@@ -53,6 +63,8 @@ data "template_file" "update_dns_state_changer_profile" {
 }
 
 resource "aws_iam_role" "update_dns_state_changer" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -71,11 +83,15 @@ EOF
 }
 
 resource "aws_iam_role_policy" "update_dns_policy" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   role   = "${aws_iam_role.update_dns_state_changer.name}"
   policy = "${data.template_file.update_dns_state_changer_profile.rendered}"
 }
 
 data "template_file" "aws_cloudwatch_event_rule_pattern" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   template = "${file("${path.module}/templates/event-pattern.json")}"
 
   vars {
@@ -84,18 +100,24 @@ data "template_file" "aws_cloudwatch_event_rule_pattern" {
 }
 
 resource "aws_cloudwatch_event_rule" "update_dns_on_state_change" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   name          = "update-dns-${local.ecs_service_name}"
   description   = "Update dns for: ${local.ecs_service_name}"
   event_pattern = "${data.template_file.aws_cloudwatch_event_rule_pattern.rendered}"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_function" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   rule      = "${aws_cloudwatch_event_rule.update_dns_on_state_change.name}"
   target_id = "${aws_lambda_function.update_dns_on_state_change.function_name}"
   arn       = "${aws_lambda_alias.update_dns_on_state_change_alias.arn}"
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   principal     = "events.amazonaws.com"
@@ -105,6 +127,8 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
 }
 
 resource "aws_lambda_alias" "update_dns_on_state_change_alias" {
+  count = "${local.enabled == false ? 1 : 0}"
+
   name             = "${var.function_name}-prod"
   description      = "${var.function_name} description"
   function_name    = "${aws_lambda_function.update_dns_on_state_change.function_name}"

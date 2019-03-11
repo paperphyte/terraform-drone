@@ -111,12 +111,22 @@ variable "service_discovery_private_namespace" {
   description = "private dns namepace"
 }
 
+variable "target_group_arn" {
+  description = "Target group resource arn"
+  default     = 0
+}
+
 variable "rpc_secret" {
   description = "RPC secret"
 }
 
 variable "cluster_instance_security_group_id" {
   description = "Security group of cluster instances"
+}
+
+variable "load_balancer_security_group_id" {
+  description = "Security group of load balancer"
+  default     = 0
 }
 
 variable "build_agent_port" {
@@ -126,4 +136,8 @@ variable "build_agent_port" {
 variable "ip_access_whitelist" {
   description = "White-listed cidr IP to access user interface. Allow from [Github Hook IP](https://api.github.com/meta)   "
   default     = ["0.0.0.0/0"]
+}
+
+variable "run_with_load_balancer" {
+  description = "creates the server with loadbalancer"
 }

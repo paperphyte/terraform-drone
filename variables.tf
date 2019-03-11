@@ -209,3 +209,8 @@ variable "update_dns_lambda_name" {
   description = "Function name for lambda used to update DNS of drone server"
   default     = "update_drone_ci_domain"
 }
+
+variable "load_balancer_enabled" {
+  default     = "false"
+  description = "Run the ci-server without loadbalancer"
+}

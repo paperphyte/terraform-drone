@@ -12,5 +12,5 @@ output "ci_server_security_group_id" {
 }
 
 output "service_name" {
-  value = "${aws_ecs_service.drone_server.name}"
+  value = "${join("", aws_ecs_service.drone_server.*.name)}"
 }
