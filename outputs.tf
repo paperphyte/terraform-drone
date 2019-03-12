@@ -9,7 +9,7 @@ output "ci_server_url" {
 }
 
 output "ci_drone_rpc_secret" {
-  value       = "${random_string.drone_rpc_secret.id}"
+  value       = "${random_string.drone_rpc_secret.result}"
   sensitive   = true
   description = "The RPC secret for drone server"
 }
