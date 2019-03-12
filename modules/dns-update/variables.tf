@@ -31,3 +31,7 @@ variable "log_retention" {
 variable "module_is_disabled" {
   description = "enable module"
 }
+
+variable "vpc_arn" {
+  description = "arn of vpc"
+}

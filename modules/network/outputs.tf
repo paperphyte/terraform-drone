@@ -9,3 +9,7 @@ output "subnet_id_2" {
 output "vpc_id" {
   value = "${aws_vpc.ci.id}"
 }
+
+output "vpc_arn" {
+  value = "${aws_vpc.ci.arn}"
+}

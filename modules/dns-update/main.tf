@@ -5,6 +5,7 @@ locals {
   function_name          = "${var.function_name}"
   ecs_service_name       = "${var.ecs_service_name}"
   enabled                = "${var.module_is_disabled}"
+  vpc_arn                = "${var.vpc_arn}"
 }
 
 resource "aws_lambda_function" "update_dns_on_state_change" {
@@ -58,7 +59,9 @@ data "template_file" "update_dns_state_changer_profile" {
   template = "${file("${path.module}/templates/update-dns-policy.json")}"
 
   vars {
-    log_group_arn = "${aws_cloudwatch_log_group.update_dns_log_group.arn}"
+    log_group_arn  = "${aws_cloudwatch_log_group.update_dns_log_group.arn}"
+    hosted_zone_id = "${local.route53_hosted_zone_id}"
+    vpc_arn        = "${local.vpc_arn}"
   }
 }
 
