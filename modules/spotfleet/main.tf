@@ -72,6 +72,7 @@ resource "aws_spot_fleet_request" "main" {
     instance_type = "${var.instance_type}"
 
     root_block_device {
+      volume_type = "gp2"
       volume_size = "${var.ec2_volume_size}"
     }
 
