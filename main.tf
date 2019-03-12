@@ -1,6 +1,6 @@
 locals {
   keypair_name                       = "${aws_key_pair.ci_tool.key_name}"
-  rpc_secret                         = "${random_string.drone_rpc_secret.id}"
+  rpc_secret                         = "${random_string.drone_rpc_secret.result}"
   subnet_id_1                        = "${module.network.subnet_id_1}"
   subnet_id_2                        = "${module.network.subnet_id_2}"
   vpc_id                             = "${module.network.vpc_id}"
