@@ -227,7 +227,7 @@ resource "aws_security_group_rule" "ci_server_app_egress" {
 
 resource "aws_security_group_rule" "ci_server_app_ingress" {
   type        = "ingress"
-  description = "RDP n"
+  description = "Drone CI/CD build agents to access"
   depends_on  = ["aws_security_group.ci_server_app"]
   protocol    = "tcp"
   from_port   = "${var.build_agent_port}"
@@ -246,7 +246,7 @@ resource "aws_security_group_rule" "ci_server_app_ingress4" {
   from_port   = "${var.app_port}"
   to_port     = "${var.app_port}"
 
-  source_security_group_id = "${local.cluster_instance_security_group_id}"
+  source_security_group_id = "${local.load_balancer_security_group_id}"
   security_group_id        = "${aws_security_group.ci_server_app.id}"
 }
 
@@ -254,7 +254,7 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
   count = "${local.run_with_load_balancer == false ? 1 : 0}"
 
   type        = "ingress"
-  description = "Security Group enabling public access to drone"
+  description = "Drone CI/CD User inteface access"
   depends_on  = ["aws_security_group.ci_server_app"]
   protocol    = "tcp"
   from_port   = "${var.app_port}"
@@ -266,8 +266,9 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
 }
 
 resource "aws_security_group_rule" "ci_server_app_ingress3" {
+  count       = "${local.run_with_load_balancer == false ? 1 : 0}"
   type        = "ingress"
-  description = "Security Group Rule used during auto cert"
+  description = "Drone CI/CD used during autocert"
   depends_on  = ["aws_security_group.ci_server_app"]
   protocol    = "tcp"
   from_port   = "${var.drone_auto_cert_port}"
