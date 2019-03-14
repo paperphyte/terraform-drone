@@ -127,7 +127,7 @@ variable "drone_server_port" {
 
 variable "drone_agent_port" {
   description = "Port of drone agent."
-  default     = 443
+  default     = 80
 }
 
 variable "drone_agent_min_count" {
