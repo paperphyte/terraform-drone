@@ -28,10 +28,7 @@ variable "log_retention" {
   default     = 3
 }
 
-variable "module_is_disabled" {
-  description = "enable module"
-}
-
 variable "vpc_arn" {
   description = "arn of vpc"
 }
+

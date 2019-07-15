@@ -49,3 +49,4 @@ variable "root_domain" {
 variable "ci_sub_domain" {
   description = "Sub part of domain for ci"
 }
+
