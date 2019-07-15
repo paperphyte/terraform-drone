@@ -7,7 +7,7 @@ variable "min_instances_count" {
 }
 
 variable "ecs_optimized_ami" {
-  type        = "map"
+  type        = map(string)
   description = "map of optimized amis"
 }
 
@@ -58,10 +58,11 @@ variable "cluster_name" {
 
 variable "ip_access_whitelist" {
   description = "White-list of who can access the ci server"
-  type        = "list"
+  type        = list(string)
 }
 
 variable "ec2_volume_size" {
-  default     = "100"
+  default     = 100
   description = "Size of ec2 disk in GB"
 }
+

@@ -1,5 +1,5 @@
 variable "ec2_volume_size" {
-  default     = "100"
+  default     = 100
   description = "Size of ec2 disk in GB"
 }
 
@@ -74,3 +74,4 @@ variable "cluster_spot_instance_enabled" {
 variable "cluster_instance_user_data" {
   description = "User data for launching new spot instance"
 }
+

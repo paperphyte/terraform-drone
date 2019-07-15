@@ -19,7 +19,7 @@ variable "subnet_id_2" {
 }
 
 variable "default_ttl" {
-  default     = "300"
+  default     = 300
   description = "Default ttl for domain records"
 }
 
@@ -38,9 +38,10 @@ variable "target_port" {
 
 variable "ip_access_whitelist" {
   description = "White-list of who can access the ci server"
-  type        = "list"
+  type        = list(string)
 }
 
 variable "module_is_enabled" {
   description = "enable module"
 }
+
