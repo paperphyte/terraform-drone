@@ -4,7 +4,7 @@ variable "db_identifier" {
 }
 
 variable "db_storage_size" {
-  default     = "10"
+  default     = 10
   description = "Storage size of RDS instance in GB"
 }
 
@@ -52,7 +52,7 @@ variable "keypair_public_key" {
 }
 
 variable "default_ttl" {
-  default     = "300"
+  default     = 300
   description = "Default ttl for domain records"
 }
 
@@ -63,16 +63,16 @@ variable "ecs_cluster_instance_type" {
 
 variable "ecs_min_instances_count" {
   description = "Min container instances running"
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_max_instances_count" {
   description = "Max container instances running."
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_optimized_ami" {
-  type = "map"
+  type = map(string)
 
   #
   # Launching an Amazon ECS Container Instance
@@ -102,42 +102,42 @@ variable "ecs_optimized_ami" {
 
 variable "ecs_container_cpu" {
   description = "Requested ecs container CPU"
-  default     = "2000"
+  default     = 2000
 }
 
 variable "ecs_container_memory" {
   description = "Requested ecs container memory"
-  default     = "768"
+  default     = 768
 }
 
 variable "fargate_task_cpu" {
-  default     = "256"
+  default     = 256
   description = " [Fargate task CPU and memory at the task level](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html)"
 }
 
 variable "fargate_task_memory" {
   description = " [Fargate task CPU and memory at the task level](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html)"
-  default     = "512"
+  default     = 512
 }
 
 variable "drone_server_port" {
   description = "Port of Drone Server"
-  default     = "80"
+  default     = 443
 }
 
 variable "drone_agent_port" {
   description = "Port of drone agent."
-  default     = "80"
+  default     = 80
 }
 
 variable "drone_agent_min_count" {
   description = "Min drone agens running."
-  default     = "1"
+  default     = 1
 }
 
 variable "drone_agent_max_count" {
   description = "Max drone agents running."
-  default     = "2"
+  default     = 2
 }
 
 variable "drone_version" {
@@ -168,7 +168,7 @@ variable "env_drone_webhook_list" {
 
 variable "env_drone_logs_debug" {
   description = "String literal for verboser output from logs "
-  default     = "false"
+  default     = false
 }
 
 variable "env_drone_repo_filter" {
@@ -176,22 +176,22 @@ variable "env_drone_repo_filter" {
 }
 
 variable "ec2_volume_size" {
-  default     = "25"
+  default     = 30
   description = "Size of ec2 disk in GB"
 }
 
 variable "cluster_spot_instance_enabled" {
-  default     = "1"
+  default     = 1
   description = "Seed Cluster with spot priced ec2 instances 0/1 true/false"
 }
 
 variable "spot_fleet_target_capacity" {
-  default     = "1"
+  default     = 1
   description = "Target number of spot instances to seed the cluster with"
 }
 
 variable "spot_fleet_bid_price" {
-  default     = "0.007"
+  default     = 0.007
   description = "Bid price for cluster resources"
 }
 
@@ -203,4 +203,13 @@ variable "spot_fleet_allocation_strategy" {
 variable "spot_fleet_valid_until" {
   description = "Amount of time a spot fleet bid should stay active"
   default     = "2022-02-22T02:02:02Z"
+}
+
+variable "update_dns_lambda_name" {
+  description = "Function name for lambda used to update DNS of drone server"
+  default     = "update_drone_ci_domain"
+}
+
+variable "env_drone_secret" {
+  description = "A string containing GitHub oauth Client Secret."
 }

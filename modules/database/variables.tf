@@ -62,3 +62,4 @@ variable "subnet_id_2" {
 variable "ci_server_app_security_group_id" {
   description = "Security group id of application"
 }
+

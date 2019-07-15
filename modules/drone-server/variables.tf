@@ -6,14 +6,26 @@ variable "ci_sub_domain" {
   description = "Sub part of domain for ci"
 }
 
-variable "db_host_name" {}
-variable "db_user" {}
-variable "db_password" {}
-variable "db_engine" {}
-variable "db_port" {}
+variable "db_host_name" {
+}
 
-variable "subnet_id_1" {}
-variable "subnet_id_2" {}
+variable "db_user" {
+}
+
+variable "db_password" {
+}
+
+variable "db_engine" {
+}
+
+variable "db_port" {
+}
+
+variable "subnet_id_1" {
+}
+
+variable "subnet_id_2" {
+}
 
 variable "app_version" {
   description = "Current Drone Agent Version"
@@ -63,11 +75,32 @@ variable "env_drone_logs_debug" {
   description = "String literal for verboser output from logs "
 }
 
-variable "env_drone_repo_filter" {}
+variable "env_drone_repo_filter" {
+}
 
 variable "env_drone_agents_enabled" {
   default     = "true"
   description = "supported values are [true] one must set explicit since 1-0-0-rc-6 "
+}
+
+variable "env_drone_http_ssl_redirect" {
+  default     = "true"
+  description = "If is set to true, then only allow HTTPS requests."
+}
+
+variable "env_drone_auto_cert" {
+  default     = "true"
+  description = "auto cert drone supported [true]"
+}
+
+variable "env_drone_server_proto" {
+  default     = "https"
+  description = "server protocol"
+}
+
+variable "drone_auto_cert_port" {
+  default     = 80
+  description = "port used during auto cert"
 }
 
 variable "vpc_id" {
@@ -87,12 +120,8 @@ variable "agent_log_group_arn" {
 }
 
 variable "service_discovery_private_namespace" {
-  default     = "ci-tool.local"
+  default     = "-tool.local"
   description = "private dns namepace"
-}
-
-variable "target_group_arn" {
-  description = "Target group resource arn"
 }
 
 variable "rpc_secret" {
@@ -103,10 +132,11 @@ variable "cluster_instance_security_group_id" {
   description = "Security group of cluster instances"
 }
 
-variable "load_balancer_security_group_id" {
-  description = "Security group of load balancer"
-}
-
 variable "build_agent_port" {
   description = "port for build agents"
+}
+
+variable "ip_access_whitelist" {
+  description = "White-listed cidr IP to access user interface. Allow from [Github Hook IP](https://api.github.com/meta)   "
+  default     = ["0.0.0.0/0"]
 }

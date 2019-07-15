@@ -9,3 +9,4 @@ variable "ci_sub_domain" {
 variable "aws_region" {
   description = "The AWS Region"
 }
+

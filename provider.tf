@@ -1,12 +1,17 @@
 provider "aws" {
-  version = "~> 1.59.0"
-  region  = "${var.aws_region}"
+  version = "~> 2.19.0"
+  region  = var.aws_region
 }
 
 provider "random" {
-  version = "~> 2.0.0"
+  version = "~> 2.1.2"
 }
 
 provider "template" {
-  version = "~> 2.0"
+  version = "~> 2.1.2"
 }
+
+provider "archive" {
+  version = "~> 1.2.2"
+}
+

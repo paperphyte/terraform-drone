@@ -5,7 +5,6 @@ required to run Drone CI/CD on AWS, including:
 
  * Virtual Private Cloud (VPC)
  * SSL certificate using Amazon Certificate Manager (ACM)
- * Application Load Balancer (ALB)
  * Domain name using AWS Route53 which points to ALB
  * AWS Elastic Cloud Service (ECS) and AWS Fargate running Drone Server
  * AWS Spot Fleet for EC2 instances in ECS
@@ -66,10 +65,7 @@ WHEN imported remember to add _public_key_ to terraform.tfstate.
 | default\_ttl | Default ttl for domain records | string | `"300"` | no |
 | drone\_agent\_max\_count | Max drone agents running. | string | `"2"` | no |
 | drone\_agent\_min\_count | Min drone agens running. | string | `"1"` | no |
-| drone\_agent\_port | Port of drone agent. | string | `"80"` | no |
-| drone\_server\_port | Port of Drone Server | string | `"80"` | no |
 | drone\_version | Ci Drone version. | string | `"1.0.0-rc.5"` | no |
-| ec2\_volume\_size | Size of ec2 disk in GB | string | `"100"` | no |
 | ecs\_cluster\_instance\_type | EC2 Instance Type. | string | `"t3.micro"` | no |
 | ecs\_container\_cpu | Requested ecs container CPU | string | `"2000"` | no |
 | ecs\_container\_memory | Requested ecs container memory | string | `"768"` | no |
@@ -93,6 +89,7 @@ WHEN imported remember to add _public_key_ to terraform.tfstate.
 | spot\_fleet\_bid\_price | Bid price for cluster resources | string | `"0.007"` | no |
 | spot\_fleet\_target\_capacity | Target number of spot instances to seed the cluster with | string | `"1"` | no |
 | spot\_fleet\_valid\_until | Amount of time a spot fleet bid should stay active | string | `"2022-02-22T02:02:02Z"` | no |
+
 
 ## Outputs
 
