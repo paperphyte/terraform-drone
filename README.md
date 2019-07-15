@@ -5,7 +5,6 @@ required to run Drone CI/CD on AWS, including:
 
  * Virtual Private Cloud (VPC)
  * SSL certificate using Amazon Certificate Manager (ACM)
- * Application Load Balancer (ALB)
  * Domain name using AWS Route53 which points to ALB
  * AWS Elastic Cloud Service (ECS) and AWS Fargate running Drone Server
  * AWS Spot Fleet for EC2 instances in ECS
@@ -90,7 +89,6 @@ WHEN imported remember to add _public_key_ to terraform.tfstate.
 | spot\_fleet\_bid\_price | Bid price for cluster resources | string | `"0.007"` | no |
 | spot\_fleet\_target\_capacity | Target number of spot instances to seed the cluster with | string | `"1"` | no |
 | spot\_fleet\_valid\_until | Amount of time a spot fleet bid should stay active | string | `"2022-02-22T02:02:02Z"` | no |
-| load\_balancer\_enabled | feature flag for loadbalancer | string | `"false"` | no |
 
 
 ## Outputs
