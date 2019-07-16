@@ -1,12 +1,3 @@
-locals {
-  sub_domain           = var.ci_sub_domain
-  root_domain          = var.root_domain
-  server_log_group_arn = var.server_log_group_arn
-  agent_log_group_arn  = var.agent_log_group_arn
-  vpc_id               = var.vpc_id
-  keypair_name         = var.keypair_name
-}
-
 resource "aws_ecs_cluster" "ci_server" {
   name = var.cluster_name
 }
@@ -22,7 +13,7 @@ resource "aws_autoscaling_group" "ci_server_drone_agent" {
   tags = [
     {
       key                 = "Name"
-      value               = "${local.sub_domain}.${local.root_domain}"
+      value               = var.fqdn
       propagate_at_launch = true
     },
   ]
@@ -43,7 +34,7 @@ resource "aws_launch_configuration" "ci_server_app" {
     aws_security_group.ci_server_ecs_instance.id,
   ]
 
-  key_name             = local.keypair_name
+  key_name             = var.keypair_name
   image_id             = data.aws_ami.amazon_linux_2.id
   instance_type        = var.instance_type
   iam_instance_profile = aws_iam_instance_profile.ci_server.name
@@ -66,12 +57,12 @@ resource "aws_iam_instance_profile" "ci_server" {
 
 resource "aws_iam_role_policy" "ec2" {
   role   = aws_iam_role.drone_agent.name
-  policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = local.server_log_group_arn, agent_log_group_arn = local.agent_log_group_arn })
+  policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = var.server_log_group_arn, agent_log_group_arn = var.agent_log_group_arn })
 }
 
 resource "aws_security_group" "ci_server_ecs_instance" {
   description = "Restrict access to application instances"
-  vpc_id      = local.vpc_id
+  vpc_id      = var.vpc_id
   name        = "ci-server-ecs-instance-sg"
 }
 
@@ -102,7 +93,7 @@ resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
 
 resource "aws_iam_role" "drone_agent" {
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = var.fqdn
   }
 
   assume_role_policy = <<EOF

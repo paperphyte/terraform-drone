@@ -22,6 +22,7 @@ locals {
   db_port                            = module.ci_db.port
   cluster_instance_user_data         = module.ci_ecs_cluster.instance_user_data
   ci_server_service_name             = module.ci_server.service_name
+  fqdn                               = "${var.ci_sub_domain}.${var.root_domain}"
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -90,8 +91,7 @@ module "ci_ecs_cluster" {
   public_subnets       = local.public_subnets
   private_subnets      = local.private_subnets
   keypair_name         = local.keypair_name
-  ci_sub_domain        = var.ci_sub_domain
-  root_domain          = var.root_domain
+  fqdn                 = local.fqdn
   min_instances_count  = var.ecs_min_instances_count
   max_instances_count  = var.ecs_max_instances_count
   ecs_optimized_ami    = var.ecs_optimized_ami
@@ -130,7 +130,7 @@ module "build_agent" {
   rpc_secret          = local.rpc_secret
   cluster_id          = local.cluster_id
   cluster_name        = local.cluster_name
-  fqdn                = "${var.ci_sub_domain}.${var.root_domain}"
+  fqdn                = local.fqdn
   aws_region          = var.aws_region
   app_version         = var.drone_version
   app_debug           = var.env_drone_logs_debug

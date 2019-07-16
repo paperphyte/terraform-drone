@@ -31,12 +31,8 @@ variable "agent_log_group_arn" {
   description = "Log Group for Agent"
 }
 
-variable "root_domain" {
-  description = "Pre-existing Route53 Hosted Zone domain"
-}
-
-variable "ci_sub_domain" {
-  description = "Sub part of domain for ci"
+variable "fqdn" {
+  description = "Fully qualified domain name of ci"
 }
 
 variable "vpc_id" {
