@@ -42,11 +42,7 @@ variable "max_container_count" {
   description = "Maximum number of agents"
 }
 
-variable "root_domain" {
-  description = "Pre-existing Route53 Hosted Zone domain"
-}
-
-variable "ci_sub_domain" {
-  description = "Sub part of domain for ci"
+variable "fqdn" {
+  description = "Fully qualified domain name of ci"
 }
 

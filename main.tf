@@ -130,8 +130,7 @@ module "build_agent" {
   rpc_secret          = local.rpc_secret
   cluster_id          = local.cluster_id
   cluster_name        = local.cluster_name
-  ci_sub_domain       = var.ci_sub_domain
-  root_domain         = var.root_domain
+  fqdn                = "${var.ci_sub_domain}.${var.root_domain}"
   aws_region          = var.aws_region
   app_version         = var.drone_version
   app_debug           = var.env_drone_logs_debug
