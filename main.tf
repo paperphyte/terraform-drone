@@ -38,33 +38,28 @@ resource "aws_key_pair" "ci_tool" {
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> v2.0"
-
-  name = "${var.ci_sub_domain}.${var.root_domain}"
-
-  cidr = "172.35.0.0/16"
+  name    = local.fqdn
+  cidr    = var.vpc_cidr
 
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
-  private_subnets = ["172.35.116.0/22", "172.35.120.0/22", "172.35.124.0/22"]
-  public_subnets  = ["172.35.16.0/22", "172.35.20.0/22", "172.35.24.0/22"]
+  private_subnets = var.vpc_private_subnets
+  public_subnets  = var.vpc_public_subnets
 
   assign_generated_ipv6_cidr_block = true
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
+  enable_nat_gateway               = true
+  single_nat_gateway               = true
+  enable_dns_hostnames             = true
+  enable_dns_support               = true
   public_subnet_tags = {
-    Name = "${var.ci_sub_domain}.${var.root_domain}"
+    Name = local.fqdn
   }
 
   tags = {
-    Name = "${var.ci_sub_domain}.${var.root_domain}"
+    Name = local.fqdn
   }
 
   vpc_tags = {
-    Name = "${var.ci_sub_domain}.${var.root_domain}"
+    Name = local.fqdn
   }
 }
 
