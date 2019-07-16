@@ -101,7 +101,6 @@ module "ci_ecs_cluster" {
 
 module "ci_ecs_cluster_spotfleet" {
   source                             = "./modules/spotfleet"
-  cluster_spot_instance_enabled      = var.cluster_spot_instance_enabled
   server_log_group_arn               = local.server_log_group_arn
   agent_log_group_arn                = local.agent_log_group_arn
   public_subnets                     = local.public_subnets
@@ -112,11 +111,9 @@ module "ci_ecs_cluster_spotfleet" {
   cluster_name                       = local.cluster_name
   cluster_iam_instance_profile       = local.cluster_iam_instance_profile
   cluster_instance_user_data         = local.cluster_instance_user_data
-  ci_sub_domain                      = var.ci_sub_domain
-  root_domain                        = var.root_domain
   instance_type                      = var.ecs_cluster_instance_type
   ec2_volume_size                    = var.ec2_volume_size
-
+  fqdn                = local.fqdn
   target_capacity     = var.spot_fleet_target_capacity
   bid_price           = var.spot_fleet_bid_price
   allocation_strategy = var.spot_fleet_allocation_strategy
