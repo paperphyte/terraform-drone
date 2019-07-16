@@ -1,16 +1,9 @@
-locals {
-  sub_domain                      = var.ci_sub_domain
-  root_domain                     = var.root_domain
-  vpc_id                          = var.vpc_id
-  ci_server_app_security_group_id = var.ci_server_app_security_group_id
-}
-
 resource "aws_db_subnet_group" "ci_db" {
   name       = "ci_db_subnet_group"
   subnet_ids = var.private_subnets
 
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = var.fqdn
   }
 }
 
@@ -18,9 +11,9 @@ resource "aws_db_subnet_group" "ci_db" {
 resource "aws_security_group" "ci_db" {
   name        = "ci-db-sg"
   description = "Allow all inbound traffic"
-  vpc_id      = local.vpc_id
+  vpc_id      = var.vpc_id
   tags = {
-    Name = "${local.sub_domain}.${local.root_domain}"
+    Name = var.fqdn
   }
 
   ingress {
@@ -28,7 +21,7 @@ resource "aws_security_group" "ci_db" {
     to_port   = var.db_engine_port[var.db_engine]
     protocol  = "TCP"
     security_groups = [
-      local.ci_server_app_security_group_id,
+      var.ci_server_app_security_group_id,
     ]
   }
 
@@ -39,8 +32,6 @@ resource "aws_security_group" "ci_db" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-
 
 resource "random_string" "db_password" {
   special = false
@@ -60,11 +51,10 @@ resource "aws_db_instance" "ci_db" {
   vpc_security_group_ids    = [aws_security_group.ci_db.id]
   db_subnet_group_name      = aws_db_subnet_group.ci_db.id
   skip_final_snapshot       = false
-  final_snapshot_identifier = "${local.sub_domain}-${md5(timestamp())}"
+  final_snapshot_identifier = md5(var.fqdn)
   deletion_protection       = false
   copy_tags_to_snapshot     = true
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = var.fqdn
   }
 }
-

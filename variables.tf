@@ -180,11 +180,6 @@ variable "ec2_volume_size" {
   description = "Size of ec2 disk in GB"
 }
 
-variable "cluster_spot_instance_enabled" {
-  default     = 1
-  description = "Seed Cluster with spot priced ec2 instances 0/1 true/false"
-}
-
 variable "spot_fleet_target_capacity" {
   default     = 1
   description = "Target number of spot instances to seed the cluster with"

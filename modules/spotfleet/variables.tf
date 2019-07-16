@@ -52,14 +52,6 @@ variable "keypair_name" {
   description = "Name of A pre-existing keypair"
 }
 
-variable "root_domain" {
-  description = "Pre-existing Route53 Hosted Zone domain"
-}
-
-variable "ci_sub_domain" {
-  description = "Sub part of domain for ci"
-}
-
 variable "instance_type" {
   description = "EC2 Instance Type."
 }
@@ -68,11 +60,10 @@ variable "cluster_name" {
   description = "Name of the cluster"
 }
 
-variable "cluster_spot_instance_enabled" {
-  description = "Seeding using spot instances enabled"
-}
-
 variable "cluster_instance_user_data" {
   description = "User data for launching new spot instance"
 }
 
+variable "fqdn" {
+  description = "Fully qualified domain name of ci"
+}

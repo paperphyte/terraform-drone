@@ -1,35 +1,14 @@
-locals {
-  sub_domain                         = var.ci_sub_domain
-  root_domain                        = var.root_domain
-  server_log_group_arn               = var.server_log_group_arn
-  agent_log_group_arn                = var.agent_log_group_arn
-  keypair_name                       = var.keypair_name
-  cluster_ami_image_id               = var.cluster_ami_image_id
-  cluster_iam_instance_profile       = var.cluster_iam_instance_profile
-  cluster_instance_security_group_id = var.cluster_instance_security_group_id
-  cluster_name                       = var.cluster_name
-  user_data                          = var.cluster_instance_user_data
-}
-
-data "template_file" "spotfleet_profile" {
-  count    = var.cluster_spot_instance_enabled
-  template = file("${path.module}/templates/spot-fleet.json")
-
-  vars = {
-    server_log_group_arn = local.server_log_group_arn
-    agent_log_group_arn  = local.agent_log_group_arn
-  }
-}
 
 resource "aws_iam_role_policy" "spotfleet" {
-  count  = var.cluster_spot_instance_enabled
-  role   = aws_iam_role.spotfleet[0].name
-  policy = data.template_file.spotfleet_profile[0].rendered
+  role = aws_iam_role.spotfleet.name
+  policy = templatefile("${path.module}/templates/spot-fleet.json", {
+    server_log_group_arn = var.server_log_group_arn,
+    agent_log_group_arn  = var.agent_log_group_arn
+  })
 }
 
 resource "aws_spot_fleet_request" "main" {
-  count                               = var.cluster_spot_instance_enabled
-  iam_fleet_role                      = aws_iam_role.spotfleet[0].arn
+  iam_fleet_role                      = aws_iam_role.spotfleet.arn
   spot_price                          = var.bid_price
   allocation_strategy                 = var.allocation_strategy
   target_capacity                     = var.target_capacity
@@ -39,11 +18,11 @@ resource "aws_spot_fleet_request" "main" {
 
   launch_specification {
     tags = {
-      Name = "${local.sub_domain}.${local.root_domain}"
+      Name = var.fqdn
     }
-    key_name             = local.keypair_name
-    ami                  = local.cluster_ami_image_id
-    iam_instance_profile = local.cluster_iam_instance_profile
+    key_name             = var.keypair_name
+    ami                  = var.cluster_ami_image_id
+    iam_instance_profile = var.cluster_iam_instance_profile
     subnet_id            = var.private_subnets[0]
 
     instance_type = var.instance_type
@@ -54,17 +33,16 @@ resource "aws_spot_fleet_request" "main" {
     }
 
     vpc_security_group_ids = [
-      local.cluster_instance_security_group_id,
+      var.cluster_instance_security_group_id,
     ]
 
-    user_data = local.user_data
+    user_data = var.cluster_instance_user_data
   }
 }
 
 resource "aws_iam_role" "spotfleet" {
-  count = var.cluster_spot_instance_enabled
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = var.fqdn
   }
 
   assume_role_policy = <<EOF

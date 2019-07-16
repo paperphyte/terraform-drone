@@ -1,6 +1,7 @@
 locals {
   keypair_name                       = aws_key_pair.ci_tool.key_name
   rpc_secret                         = random_string.drone_rpc_secret.result
+  fqdn                               = "${var.ci_sub_domain}.${var.root_domain}"
   private_subnets                    = module.vpc.private_subnets
   public_subnets                     = module.vpc.public_subnets
   vpc_id                             = module.vpc.vpc_id
@@ -73,13 +74,12 @@ module "ci_db" {
   public_subnets                  = local.public_subnets
   private_subnets                 = local.private_subnets
   ci_server_app_security_group_id = local.ci_server_app_security_group_id
+  fqdn                            = local.fqdn
   db_identifier                   = var.db_identifier
   db_storage                      = var.db_storage_size
   db_instance_class               = var.db_instance_type
   db_name                         = var.db_name
   db_username                     = var.db_user
-  ci_sub_domain                   = var.ci_sub_domain
-  root_domain                     = var.root_domain
 }
 
 module "ci_ecs_cluster" {
@@ -90,8 +90,7 @@ module "ci_ecs_cluster" {
   public_subnets       = local.public_subnets
   private_subnets      = local.private_subnets
   keypair_name         = local.keypair_name
-  ci_sub_domain        = var.ci_sub_domain
-  root_domain          = var.root_domain
+  fqdn                 = local.fqdn
   min_instances_count  = var.ecs_min_instances_count
   max_instances_count  = var.ecs_max_instances_count
   ecs_optimized_ami    = var.ecs_optimized_ami
@@ -102,7 +101,6 @@ module "ci_ecs_cluster" {
 
 module "ci_ecs_cluster_spotfleet" {
   source                             = "./modules/spotfleet"
-  cluster_spot_instance_enabled      = var.cluster_spot_instance_enabled
   server_log_group_arn               = local.server_log_group_arn
   agent_log_group_arn                = local.agent_log_group_arn
   public_subnets                     = local.public_subnets
@@ -113,15 +111,13 @@ module "ci_ecs_cluster_spotfleet" {
   cluster_name                       = local.cluster_name
   cluster_iam_instance_profile       = local.cluster_iam_instance_profile
   cluster_instance_user_data         = local.cluster_instance_user_data
-  ci_sub_domain                      = var.ci_sub_domain
-  root_domain                        = var.root_domain
   instance_type                      = var.ecs_cluster_instance_type
   ec2_volume_size                    = var.ec2_volume_size
-
-  target_capacity     = var.spot_fleet_target_capacity
-  bid_price           = var.spot_fleet_bid_price
-  allocation_strategy = var.spot_fleet_allocation_strategy
-  valid_until         = var.spot_fleet_valid_until
+  fqdn                               = local.fqdn
+  target_capacity                    = var.spot_fleet_target_capacity
+  bid_price                          = var.spot_fleet_bid_price
+  allocation_strategy                = var.spot_fleet_allocation_strategy
+  valid_until                        = var.spot_fleet_valid_until
 }
 
 module "build_agent" {
@@ -130,8 +126,7 @@ module "build_agent" {
   rpc_secret          = local.rpc_secret
   cluster_id          = local.cluster_id
   cluster_name        = local.cluster_name
-  ci_sub_domain       = var.ci_sub_domain
-  root_domain         = var.root_domain
+  fqdn                = local.fqdn
   aws_region          = var.aws_region
   app_version         = var.drone_version
   app_debug           = var.env_drone_logs_debug
@@ -165,8 +160,8 @@ module "ci_server" {
   env_drone_repo_filter              = var.env_drone_repo_filter
   fargate_task_cpu                   = var.fargate_task_cpu
   fargate_task_memory                = var.fargate_task_memory
-  ci_sub_domain                      = var.ci_sub_domain
-  root_domain                        = var.root_domain
+  fqdn                               = local.fqdn
+  sub_domain                         = var.ci_sub_domain
   aws_region                         = var.aws_region
   app_version                        = var.drone_version
   app_debug                          = var.env_drone_logs_debug
