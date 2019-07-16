@@ -7,7 +7,7 @@ locals {
 
 resource "aws_db_subnet_group" "ci_db" {
   name       = "ci_db_subnet_group"
-  subnet_ids = var.public_subnets
+  subnet_ids = var.private_subnets
 
   tags = {
     "Name" = "${local.sub_domain}.${local.root_domain}"

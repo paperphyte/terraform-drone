@@ -13,7 +13,7 @@ resource "aws_ecs_cluster" "ci_server" {
 
 resource "aws_autoscaling_group" "ci_server_drone_agent" {
   name                 = "ci-server-drone-agent"
-  vpc_zone_identifier  = var.public_subnets
+  vpc_zone_identifier  = var.private_subnets
   min_size             = var.min_instances_count
   max_size             = var.max_instances_count
   desired_capacity     = var.min_instances_count

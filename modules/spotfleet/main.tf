@@ -68,7 +68,7 @@ resource "aws_spot_fleet_request" "main" {
     key_name = local.keypair_name
     ami = local.cluster_ami_image_id
     iam_instance_profile = local.cluster_iam_instance_profile
-    subnet_id = var.public_subnets[0]
+    subnet_id = var.private_subnets[0]
 
     instance_type = var.instance_type
 

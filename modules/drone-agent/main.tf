@@ -42,7 +42,7 @@ resource "aws_ecs_task_definition" "drone_agent" {
   }
 
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = "${local.sub_domain}.${local.root_domain}"
   }
 }
 
