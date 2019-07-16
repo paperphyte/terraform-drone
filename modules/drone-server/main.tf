@@ -5,41 +5,35 @@ resource "aws_cloudwatch_log_group" "drone_server" {
   }
 }
 
-data "template_file" "drone_server_task_definition" {
-  template = file("${path.module}/templates/task-definition.json")
-
-  vars = {
-    log_group_drone_server    = aws_cloudwatch_log_group.drone_server.name
-    log_group_region          = var.aws_region
-    drone_rpc_server          = var.fqdn
-    drone_rpc_secret          = var.rpc_secret
-    db_host_name              = var.db_host_name
-    db_user                   = var.db_user
-    db_password               = var.db_password
-    db_engine                 = var.db_engine
-    db_port                   = var.db_port
-    drone_version             = var.app_version
-    drone_logs_debug          = var.app_debug
-    drone_server_port         = var.app_port
-    container_cpu             = var.fargate_task_cpu
-    container_memory          = var.fargate_task_memory
-    drone_github_client       = var.env_github_client
-    drone_github_secret       = var.env_github_secret
-    drone_admin               = var.env_drone_admin
-    drone_github_organization = var.env_drone_github_organization
-    drone_webhook_list        = var.env_drone_webhook_list
-    drone_repository_filter   = var.env_drone_repo_filter
-    drone_agents_enabled      = var.env_drone_agents_enabled
-    drone_auto_cert           = var.env_drone_auto_cert
-    drone_server_proto        = var.env_drone_server_proto
-    drone_auto_cert_port      = var.drone_auto_cert_port
-    drone_http_ssl_redirect   = var.env_drone_http_ssl_redirect
-  }
-}
-
 resource "aws_ecs_task_definition" "drone_server" {
-  family                   = "drone-server"
-  container_definitions    = data.template_file.drone_server_task_definition.rendered
+  family = "drone-server"
+  container_definitions = templatefile("${path.module}/templates/task-definition.json", {
+    log_group_drone_server    = aws_cloudwatch_log_group.drone_server.name,
+    log_group_region          = var.aws_region,
+    drone_rpc_server          = var.fqdn,
+    drone_rpc_secret          = var.rpc_secret,
+    db_host_name              = var.db_host_name,
+    db_user                   = var.db_user,
+    db_password               = var.db_password,
+    db_engine                 = var.db_engine,
+    db_port                   = var.db_port,
+    drone_version             = var.app_version,
+    drone_logs_debug          = var.app_debug,
+    drone_server_port         = var.app_port,
+    container_cpu             = var.fargate_task_cpu,
+    container_memory          = var.fargate_task_memory,
+    drone_github_client       = var.env_github_client,
+    drone_github_secret       = var.env_github_secret,
+    drone_admin               = var.env_drone_admin,
+    drone_github_organization = var.env_drone_github_organization,
+    drone_webhook_list        = var.env_drone_webhook_list,
+    drone_repository_filter   = var.env_drone_repo_filter,
+    drone_agents_enabled      = var.env_drone_agents_enabled,
+    drone_auto_cert           = var.env_drone_auto_cert,
+    drone_server_proto        = var.env_drone_server_proto,
+    drone_auto_cert_port      = var.drone_auto_cert_port,
+    drone_http_ssl_redirect   = var.env_drone_http_ssl_redirect
+  })
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
 
