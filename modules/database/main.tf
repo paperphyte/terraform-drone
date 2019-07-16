@@ -2,26 +2,25 @@ locals {
   sub_domain                      = var.ci_sub_domain
   root_domain                     = var.root_domain
   vpc_id                          = var.vpc_id
-  subnet_id_1                     = var.subnet_id_1
-  subnet_id_2                     = var.subnet_id_2
   ci_server_app_security_group_id = var.ci_server_app_security_group_id
 }
 
 resource "aws_db_subnet_group" "ci_db" {
   name       = "ci_db_subnet_group"
-  subnet_ids = [local.subnet_id_1, local.subnet_id_2]
+  subnet_ids = var.private_subnets
 
   tags = {
     "Name" = "${local.sub_domain}.${local.root_domain}"
   }
 }
 
+
 resource "aws_security_group" "ci_db" {
   name        = "ci-db-sg"
   description = "Allow all inbound traffic"
   vpc_id      = local.vpc_id
   tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
+    Name = "${local.sub_domain}.${local.root_domain}"
   }
 
   ingress {
@@ -40,6 +39,8 @@ resource "aws_security_group" "ci_db" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+
 
 resource "random_string" "db_password" {
   special = false

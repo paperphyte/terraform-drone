@@ -1,8 +1,6 @@
 locals {
   sub_domain           = var.ci_sub_domain
   root_domain          = var.root_domain
-  subnet_id_1          = var.subnet_id_1
-  subnet_id_2          = var.subnet_id_2
   server_log_group_arn = var.server_log_group_arn
   agent_log_group_arn  = var.agent_log_group_arn
   vpc_id               = var.vpc_id
@@ -15,7 +13,7 @@ resource "aws_ecs_cluster" "ci_server" {
 
 resource "aws_autoscaling_group" "ci_server_drone_agent" {
   name                 = "ci-server-drone-agent"
-  vpc_zone_identifier  = [local.subnet_id_1, local.subnet_id_2]
+  vpc_zone_identifier  = var.private_subnets
   min_size             = var.min_instances_count
   max_size             = var.max_instances_count
   desired_capacity     = var.min_instances_count
@@ -66,6 +64,42 @@ resource "aws_iam_instance_profile" "ci_server" {
   role = aws_iam_role.drone_agent.name
 }
 
+resource "aws_iam_role_policy" "ec2" {
+  role   = aws_iam_role.drone_agent.name
+  policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = local.server_log_group_arn, agent_log_group_arn = local.agent_log_group_arn })
+}
+
+resource "aws_security_group" "ci_server_ecs_instance" {
+  description = "Restrict access to application instances"
+  vpc_id      = local.vpc_id
+  name        = "ci-server-ecs-instance-sg"
+}
+
+resource "aws_security_group_rule" "ci_server_ecs_instance_egress" {
+  type        = "egress"
+  description = "RDP a"
+  depends_on  = [aws_security_group.ci_server_ecs_instance]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.ci_server_ecs_instance.id
+}
+
+resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
+  type        = "ingress"
+  description = "RDP b"
+  depends_on  = [aws_security_group.ci_server_ecs_instance]
+  protocol    = "tcp"
+  from_port   = 22
+  to_port     = 22
+
+  cidr_blocks = var.ip_access_whitelist
+
+  security_group_id = aws_security_group.ci_server_ecs_instance.id
+}
+
 resource "aws_iam_role" "drone_agent" {
   tags = {
     "Name" = "${local.sub_domain}.${local.root_domain}"
@@ -86,42 +120,4 @@ resource "aws_iam_role" "drone_agent" {
   ]
 }
 EOF
-
-}
-
-
-resource "aws_iam_role_policy" "ec2" {
-  role = aws_iam_role.drone_agent.name
-  policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = local.server_log_group_arn, agent_log_group_arn = local.agent_log_group_arn })
-}
-
-resource "aws_security_group" "ci_server_ecs_instance" {
-  description = "Restrict access to application instances"
-  vpc_id = local.vpc_id
-  name = "ci-server-ecs-instance-sg"
-}
-
-resource "aws_security_group_rule" "ci_server_ecs_instance_egress" {
-  type = "egress"
-  description = "RDP a"
-  depends_on = [aws_security_group.ci_server_ecs_instance]
-  from_port = 0
-  to_port = 0
-  protocol = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
-
-  security_group_id = aws_security_group.ci_server_ecs_instance.id
-}
-
-resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
-  type = "ingress"
-  description = "RDP b"
-  depends_on = [aws_security_group.ci_server_ecs_instance]
-  protocol = "tcp"
-  from_port = 22
-  to_port = 22
-
-  cidr_blocks = var.ip_access_whitelist
-
-  security_group_id = aws_security_group.ci_server_ecs_instance.id
 }

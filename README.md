@@ -3,7 +3,7 @@
 This repository contains Terraform infrastructure code which creates AWS resources
 required to run Drone CI/CD on AWS, including:
 
- * Virtual Private Cloud (VPC)
+ * VPC from community modules
  * SSL certificate using Amazon Certificate Manager (ACM)
  * Domain name using AWS Route53 which points to ALB
  * AWS Elastic Cloud Service (ECS) and AWS Fargate running Drone Server

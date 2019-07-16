@@ -12,8 +12,6 @@ locals {
   cluster_id   = var.cluster_id
   vpc_id       = var.vpc_id
 
-  subnet_id_1                        = var.subnet_id_1
-  subnet_id_2                        = var.subnet_id_2
   rpc_secret                         = var.rpc_secret
   cluster_instance_security_group_id = var.cluster_instance_security_group_id
   ip_access_whitelist                = var.ip_access_whitelist
@@ -84,7 +82,7 @@ resource "aws_ecs_service" "drone_server" {
 
   network_configuration {
     security_groups  = [aws_security_group.ci_server_app.id]
-    subnets          = [local.subnet_id_1, local.subnet_id_2]
+    subnets          = var.public_subnets
     assign_public_ip = true
   }
 
@@ -127,6 +125,76 @@ resource "aws_service_discovery_service" "ci_server" {
   }
 }
 
+resource "aws_iam_role_policy" "ci_server_ecs" {
+  role   = aws_iam_role.ci_server_ecs_task.name
+  policy = templatefile("${path.module}/templates/drone-ecs.json", { server_log_group_arn = var.agent_log_group_arn, agent_log_group_arn = aws_cloudwatch_log_group.drone_server.arn, })
+
+}
+
+resource "aws_security_group" "ci_server_app" {
+  description = "Restrict access to application server."
+  vpc_id      = local.vpc_id
+  name        = "ci-server-task-sg"
+}
+
+resource "aws_security_group_rule" "ci_server_app_egress" {
+  type        = "egress"
+  description = "RDP c"
+  depends_on  = [aws_security_group.ci_server_app]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+
+  security_group_id = aws_security_group.ci_server_app.id
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress" {
+  type        = "ingress"
+  description = "Drone CI/CD build agents to access"
+  depends_on  = [aws_security_group.ci_server_app]
+  protocol    = "tcp"
+  from_port   = var.build_agent_port
+  to_port     = var.build_agent_port
+
+  source_security_group_id = local.cluster_instance_security_group_id
+  security_group_id        = aws_security_group.ci_server_app.id
+
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress2" {
+
+  type        = "ingress"
+  description = "Drone CI/CD User inteface access"
+  depends_on  = [aws_security_group.ci_server_app]
+  protocol    = "tcp"
+  from_port   = var.app_port
+  to_port     = var.app_port
+
+  cidr_blocks = var.ip_access_whitelist
+
+  security_group_id = aws_security_group.ci_server_app.id
+
+}
+
+resource "aws_security_group_rule" "ci_server_app_ingress3" {
+  type        = "ingress"
+  description = "Drone CI/CD used during autocert"
+  depends_on  = [aws_security_group.ci_server_app]
+  protocol    = "tcp"
+  from_port   = var.drone_auto_cert_port
+  to_port     = var.drone_auto_cert_port
+
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+
+  security_group_id = aws_security_group.ci_server_app.id
+
+}
 
 resource "aws_iam_role" "ci_server_ecs_task" {
   assume_role_policy = <<EOF
@@ -144,74 +212,4 @@ resource "aws_iam_role" "ci_server_ecs_task" {
   ]
 }
 EOF
-
 }
-
-resource "aws_iam_role_policy" "ci_server_ecs" {
-  role = aws_iam_role.ci_server_ecs_task.name
-  policy = templatefile("${path.module}/templates/drone-ecs.json", { server_log_group_arn = var.agent_log_group_arn, agent_log_group_arn = aws_cloudwatch_log_group.drone_server.arn, })
-
-}
-
-resource "aws_security_group" "ci_server_app" {
-  description = "Restrict access to application server."
-  vpc_id = local.vpc_id
-  name = "ci-server-task-sg"
-}
-
-resource "aws_security_group_rule" "ci_server_app_egress" {
-  type = "egress"
-  description = "RDP c"
-  depends_on = [aws_security_group.ci_server_app]
-  from_port = 0
-  to_port = 0
-  protocol = "-1"
-
-  cidr_blocks = [
-    "0.0.0.0/0",
-  ]
-
-  security_group_id = aws_security_group.ci_server_app.id
-}
-
-resource "aws_security_group_rule" "ci_server_app_ingress" {
-  type = "ingress"
-  description = "Drone CI/CD build agents to access"
-  depends_on = [aws_security_group.ci_server_app]
-  protocol = "tcp"
-  from_port = var.build_agent_port
-  to_port = var.build_agent_port
-
-  source_security_group_id = local.cluster_instance_security_group_id
-  security_group_id = aws_security_group.ci_server_app.id
-}
-
-resource "aws_security_group_rule" "ci_server_app_ingress2" {
-
-  type = "ingress"
-  description = "Drone CI/CD User inteface access"
-  depends_on = [aws_security_group.ci_server_app]
-  protocol = "tcp"
-  from_port = var.app_port
-  to_port = var.app_port
-
-  cidr_blocks = var.ip_access_whitelist
-
-  security_group_id = aws_security_group.ci_server_app.id
-}
-
-resource "aws_security_group_rule" "ci_server_app_ingress3" {
-  type = "ingress"
-  description = "Drone CI/CD used during autocert"
-  depends_on = [aws_security_group.ci_server_app]
-  protocol = "tcp"
-  from_port = var.drone_auto_cert_port
-  to_port = var.drone_auto_cert_port
-
-  cidr_blocks = [
-    "0.0.0.0/0",
-  ]
-
-  security_group_id = aws_security_group.ci_server_app.id
-}
-
