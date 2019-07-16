@@ -35,7 +35,7 @@ resource "aws_key_pair" "ci_tool" {
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "~> v2.0"
 
   name = "${var.ci_sub_domain}.${var.root_domain}"
@@ -87,8 +87,8 @@ module "ci_ecs_cluster" {
   server_log_group_arn = local.server_log_group_arn
   agent_log_group_arn  = local.agent_log_group_arn
   vpc_id               = local.vpc_id
-  public_subnets                  = local.public_subnets
-  private_subnets                 = local.private_subnets
+  public_subnets       = local.public_subnets
+  private_subnets      = local.private_subnets
   keypair_name         = local.keypair_name
   ci_sub_domain        = var.ci_sub_domain
   root_domain          = var.root_domain

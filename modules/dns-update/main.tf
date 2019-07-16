@@ -43,39 +43,39 @@ resource "aws_cloudwatch_log_group" "update_dns_log_group" {
 
 resource "aws_iam_role_policy" "update_dns_policy" {
 
-  role = aws_iam_role.update_dns_state_changer.name
+  role   = aws_iam_role.update_dns_state_changer.name
   policy = templatefile("${path.module}/templates/update-dns-policy.json", { log_group_arn = aws_cloudwatch_log_group.update_dns_log_group.arn, hosted_zone_id = local.route53_hosted_zone_id, vpc_arn = local.vpc_arn })
 }
 
 resource "aws_cloudwatch_event_rule" "update_dns_on_state_change" {
 
-  name = "update-dns-${local.ecs_service_name}"
-  description = "Update dns for: ${local.ecs_service_name}"
+  name          = "update-dns-${local.ecs_service_name}"
+  description   = "Update dns for: ${local.ecs_service_name}"
   event_pattern = templatefile("${path.module}/templates/event-pattern.json", { cluster_arn = local.cluster_arn })
 }
 
 resource "aws_cloudwatch_event_target" "lambda_function" {
 
-  rule = aws_cloudwatch_event_rule.update_dns_on_state_change.name
+  rule      = aws_cloudwatch_event_rule.update_dns_on_state_change.name
   target_id = aws_lambda_function.update_dns_on_state_change.function_name
-  arn = aws_lambda_alias.update_dns_on_state_change_alias.arn
+  arn       = aws_lambda_alias.update_dns_on_state_change_alias.arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch" {
 
-  statement_id = "AllowExecutionFromCloudWatch"
-  action = "lambda:InvokeFunction"
-  principal = "events.amazonaws.com"
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  principal     = "events.amazonaws.com"
   function_name = aws_lambda_function.update_dns_on_state_change.function_name
-  source_arn = aws_cloudwatch_event_rule.update_dns_on_state_change.arn
-  qualifier = aws_lambda_alias.update_dns_on_state_change_alias.name
+  source_arn    = aws_cloudwatch_event_rule.update_dns_on_state_change.arn
+  qualifier     = aws_lambda_alias.update_dns_on_state_change_alias.name
 }
 
 resource "aws_lambda_alias" "update_dns_on_state_change_alias" {
 
-  name = "${var.function_name}-prod"
-  description = "${var.function_name} description"
-  function_name = aws_lambda_function.update_dns_on_state_change.function_name
+  name             = "${var.function_name}-prod"
+  description      = "${var.function_name} description"
+  function_name    = aws_lambda_function.update_dns_on_state_change.function_name
   function_version = "$LATEST"
 }
 

@@ -40,12 +40,12 @@ variable "agent_log_group_arn" {
 }
 variable "private_subnets" {
   description = "private subnet ids"
-  type = list
+  type        = list
 }
 
 variable "public_subnets" {
   description = "public subnet ids"
-  type = list
+  type        = list
 }
 
 variable "keypair_name" {

@@ -45,12 +45,12 @@ variable "vpc_id" {
 
 variable "private_subnets" {
   description = "private subnet ids"
-  type = list
+  type        = list
 }
 
 variable "public_subnets" {
   description = "public subnet ids"
-  type = list
+  type        = list
 }
 
 variable "cluster_name" {

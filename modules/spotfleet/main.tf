@@ -22,29 +22,29 @@ data "template_file" "spotfleet_profile" {
 }
 
 resource "aws_iam_role_policy" "spotfleet" {
-  count = var.cluster_spot_instance_enabled
-  role = aws_iam_role.spotfleet[0].name
+  count  = var.cluster_spot_instance_enabled
+  role   = aws_iam_role.spotfleet[0].name
   policy = data.template_file.spotfleet_profile[0].rendered
 }
 
 resource "aws_spot_fleet_request" "main" {
-  count = var.cluster_spot_instance_enabled
-  iam_fleet_role = aws_iam_role.spotfleet[0].arn
-  spot_price = var.bid_price
-  allocation_strategy = var.allocation_strategy
-  target_capacity = var.target_capacity
+  count                               = var.cluster_spot_instance_enabled
+  iam_fleet_role                      = aws_iam_role.spotfleet[0].arn
+  spot_price                          = var.bid_price
+  allocation_strategy                 = var.allocation_strategy
+  target_capacity                     = var.target_capacity
   terminate_instances_with_expiration = true
-  valid_until = var.valid_until
-  replace_unhealthy_instances = true
+  valid_until                         = var.valid_until
+  replace_unhealthy_instances         = true
 
   launch_specification {
     tags = {
       Name = "${local.sub_domain}.${local.root_domain}"
     }
-    key_name = local.keypair_name
-    ami = local.cluster_ami_image_id
+    key_name             = local.keypair_name
+    ami                  = local.cluster_ami_image_id
     iam_instance_profile = local.cluster_iam_instance_profile
-    subnet_id = var.private_subnets[0]
+    subnet_id            = var.private_subnets[0]
 
     instance_type = var.instance_type
 

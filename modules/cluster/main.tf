@@ -65,35 +65,35 @@ resource "aws_iam_instance_profile" "ci_server" {
 }
 
 resource "aws_iam_role_policy" "ec2" {
-  role = aws_iam_role.drone_agent.name
+  role   = aws_iam_role.drone_agent.name
   policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = local.server_log_group_arn, agent_log_group_arn = local.agent_log_group_arn })
 }
 
 resource "aws_security_group" "ci_server_ecs_instance" {
   description = "Restrict access to application instances"
-  vpc_id = local.vpc_id
-  name = "ci-server-ecs-instance-sg"
+  vpc_id      = local.vpc_id
+  name        = "ci-server-ecs-instance-sg"
 }
 
 resource "aws_security_group_rule" "ci_server_ecs_instance_egress" {
-  type = "egress"
+  type        = "egress"
   description = "RDP a"
-  depends_on = [aws_security_group.ci_server_ecs_instance]
-  from_port = 0
-  to_port = 0
-  protocol = "-1"
+  depends_on  = [aws_security_group.ci_server_ecs_instance]
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = aws_security_group.ci_server_ecs_instance.id
 }
 
 resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
-  type = "ingress"
+  type        = "ingress"
   description = "RDP b"
-  depends_on = [aws_security_group.ci_server_ecs_instance]
-  protocol = "tcp"
-  from_port = 22
-  to_port = 22
+  depends_on  = [aws_security_group.ci_server_ecs_instance]
+  protocol    = "tcp"
+  from_port   = 22
+  to_port     = 22
 
   cidr_blocks = var.ip_access_whitelist
 
