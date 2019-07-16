@@ -20,11 +20,14 @@ variable "db_engine" {
 
 variable "db_port" {
 }
-
-variable "subnet_id_1" {
+variable "private_subnets" {
+  description = "private subnet ids"
+  type = list
 }
 
-variable "subnet_id_2" {
+variable "public_subnets" {
+  description = "public subnet ids"
+  type = list
 }
 
 variable "app_version" {

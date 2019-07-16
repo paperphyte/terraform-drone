@@ -12,8 +12,6 @@ locals {
   cluster_id   = var.cluster_id
   vpc_id       = var.vpc_id
 
-  subnet_id_1                        = var.subnet_id_1
-  subnet_id_2                        = var.subnet_id_2
   rpc_secret                         = var.rpc_secret
   cluster_instance_security_group_id = var.cluster_instance_security_group_id
   ip_access_whitelist                = var.ip_access_whitelist
@@ -84,7 +82,7 @@ resource "aws_ecs_service" "drone_server" {
 
   network_configuration {
     security_groups  = [aws_security_group.ci_server_app.id]
-    subnets          = [local.subnet_id_1, local.subnet_id_2]
+    subnets          = var.public_subnets
     assign_public_ip = true
   }
 
@@ -183,7 +181,8 @@ resource "aws_security_group_rule" "ci_server_app_ingress" {
   to_port = var.build_agent_port
 
   source_security_group_id = local.cluster_instance_security_group_id
-  security_group_id = aws_security_group.ci_server_app.id
+    security_group_id = aws_security_group.ci_server_app.id
+
 }
 
 resource "aws_security_group_rule" "ci_server_app_ingress2" {
@@ -197,7 +196,8 @@ resource "aws_security_group_rule" "ci_server_app_ingress2" {
 
   cidr_blocks = var.ip_access_whitelist
 
-  security_group_id = aws_security_group.ci_server_app.id
+    security_group_id = aws_security_group.ci_server_app.id
+
 }
 
 resource "aws_security_group_rule" "ci_server_app_ingress3" {
@@ -212,6 +212,7 @@ resource "aws_security_group_rule" "ci_server_app_ingress3" {
     "0.0.0.0/0",
   ]
 
-  security_group_id = aws_security_group.ci_server_app.id
+    security_group_id = aws_security_group.ci_server_app.id
+
 }
 

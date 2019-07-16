@@ -1,10 +1,10 @@
 locals {
   keypair_name                       = aws_key_pair.ci_tool.key_name
   rpc_secret                         = random_string.drone_rpc_secret.result
-  subnet_id_1                        = module.network.subnet_id_1
-  subnet_id_2                        = module.network.subnet_id_2
-  vpc_id                             = module.network.vpc_id
-  vpc_arn                            = module.network.vpc_arn
+  private_subnets                    = module.vpc.private_subnets
+  public_subnets                     = module.vpc.public_subnets
+  vpc_id                             = module.vpc.vpc_id
+  vpc_arn                            = module.vpc.vpc_arn
   ci_server_app_security_group_id    = module.ci_server.ci_server_security_group_id
   cluster_instance_security_group_id = module.ci_ecs_cluster.instance_security_group_id
   cluster_ami_image_id               = module.ci_ecs_cluster.ami_image_id
@@ -34,18 +34,44 @@ resource "aws_key_pair" "ci_tool" {
   public_key = var.keypair_public_key
 }
 
-module "network" {
-  source        = "./modules/network"
-  aws_region    = var.aws_region
-  ci_sub_domain = var.ci_sub_domain
-  root_domain   = var.root_domain
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "~> v2.0"
+
+  name = "${var.ci_sub_domain}.${var.root_domain}"
+
+  cidr = "172.35.0.0/16"
+
+  azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
+  private_subnets = ["172.35.116.0/22", "172.35.120.0/22", "172.35.124.0/22"]
+  public_subnets  = ["172.35.16.0/22", "172.35.20.0/22", "172.35.24.0/22"]
+
+  assign_generated_ipv6_cidr_block = true
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  public_subnet_tags = {
+    Name = "${var.ci_sub_domain}.${var.root_domain}"
+  }
+
+  tags = {
+    Name = "${var.ci_sub_domain}.${var.root_domain}"
+  }
+
+  vpc_tags = {
+    Name = "${var.ci_sub_domain}.${var.root_domain}"
+  }
 }
 
 module "ci_db" {
   source                          = "./modules/database"
   vpc_id                          = local.vpc_id
-  subnet_id_1                     = local.subnet_id_1
-  subnet_id_2                     = local.subnet_id_2
+  public_subnets                  = local.public_subnets
+  private_subnets                 = local.private_subnets
   ci_server_app_security_group_id = local.ci_server_app_security_group_id
   db_identifier                   = var.db_identifier
   db_storage                      = var.db_storage_size
@@ -61,8 +87,8 @@ module "ci_ecs_cluster" {
   server_log_group_arn = local.server_log_group_arn
   agent_log_group_arn  = local.agent_log_group_arn
   vpc_id               = local.vpc_id
-  subnet_id_1          = local.subnet_id_1
-  subnet_id_2          = local.subnet_id_2
+  public_subnets                  = local.public_subnets
+  private_subnets                 = local.private_subnets
   keypair_name         = local.keypair_name
   ci_sub_domain        = var.ci_sub_domain
   root_domain          = var.root_domain
@@ -79,8 +105,8 @@ module "ci_ecs_cluster_spotfleet" {
   cluster_spot_instance_enabled      = var.cluster_spot_instance_enabled
   server_log_group_arn               = local.server_log_group_arn
   agent_log_group_arn                = local.agent_log_group_arn
-  subnet_id_1                        = local.subnet_id_1
-  subnet_id_2                        = local.subnet_id_2
+  public_subnets                     = local.public_subnets
+  private_subnets                    = local.private_subnets
   keypair_name                       = local.keypair_name
   cluster_instance_security_group_id = local.cluster_instance_security_group_id
   cluster_ami_image_id               = local.cluster_ami_image_id
@@ -126,8 +152,8 @@ module "ci_server" {
   agent_log_group_arn                = local.agent_log_group_arn
   cluster_name                       = local.cluster_name
   cluster_id                         = local.cluster_id
-  subnet_id_1                        = local.subnet_id_1
-  subnet_id_2                        = local.subnet_id_2
+  public_subnets                     = local.public_subnets
+  private_subnets                    = local.private_subnets
   vpc_id                             = local.vpc_id
   cluster_instance_security_group_id = local.cluster_instance_security_group_id
   env_github_client                  = var.env_github_client

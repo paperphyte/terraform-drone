@@ -38,13 +38,14 @@ variable "server_log_group_arn" {
 variable "agent_log_group_arn" {
   description = "Log Group for Agent"
 }
-
-variable "subnet_id_1" {
-  description = "id for subnet"
+variable "private_subnets" {
+  description = "private subnet ids"
+  type = list
 }
 
-variable "subnet_id_2" {
-  description = "id for subnet"
+variable "public_subnets" {
+  description = "public subnet ids"
+  type = list
 }
 
 variable "keypair_name" {

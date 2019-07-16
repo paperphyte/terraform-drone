@@ -1,8 +1,6 @@
 locals {
   sub_domain                         = var.ci_sub_domain
   root_domain                        = var.root_domain
-  subnet_id_1                        = var.subnet_id_1
-  subnet_id_2                        = var.subnet_id_2
   server_log_group_arn               = var.server_log_group_arn
   agent_log_group_arn                = var.agent_log_group_arn
   keypair_name                       = var.keypair_name
@@ -65,12 +63,12 @@ resource "aws_spot_fleet_request" "main" {
 
   launch_specification {
     tags = {
-      "Name" = "${local.sub_domain}.${local.root_domain}"
+      Name = "${local.sub_domain}.${local.root_domain}"
     }
     key_name = local.keypair_name
     ami = local.cluster_ami_image_id
     iam_instance_profile = local.cluster_iam_instance_profile
-    subnet_id = "${local.subnet_id_1},${local.subnet_id_2}"
+    subnet_id = var.public_subnets[0]
 
     instance_type = var.instance_type
 

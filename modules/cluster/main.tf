@@ -1,8 +1,6 @@
 locals {
   sub_domain           = var.ci_sub_domain
   root_domain          = var.root_domain
-  subnet_id_1          = var.subnet_id_1
-  subnet_id_2          = var.subnet_id_2
   server_log_group_arn = var.server_log_group_arn
   agent_log_group_arn  = var.agent_log_group_arn
   vpc_id               = var.vpc_id
@@ -15,7 +13,7 @@ resource "aws_ecs_cluster" "ci_server" {
 
 resource "aws_autoscaling_group" "ci_server_drone_agent" {
   name                 = "ci-server-drone-agent"
-  vpc_zone_identifier  = [local.subnet_id_1, local.subnet_id_2]
+  vpc_zone_identifier  = var.public_subnets
   min_size             = var.min_instances_count
   max_size             = var.max_instances_count
   desired_capacity     = var.min_instances_count
