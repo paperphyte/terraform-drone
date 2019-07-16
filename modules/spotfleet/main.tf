@@ -21,30 +21,6 @@ data "template_file" "spotfleet_profile" {
   }
 }
 
-resource "aws_iam_role" "spotfleet" {
-  count = var.cluster_spot_instance_enabled
-  tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
-  }
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": ["ec2.amazonaws.com", "spotfleet.amazonaws.com"]
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-
-}
-
 resource "aws_iam_role_policy" "spotfleet" {
   count = var.cluster_spot_instance_enabled
   role = aws_iam_role.spotfleet[0].name
@@ -85,3 +61,25 @@ resource "aws_spot_fleet_request" "main" {
   }
 }
 
+resource "aws_iam_role" "spotfleet" {
+  count = var.cluster_spot_instance_enabled
+  tags = {
+    "Name" = "${local.sub_domain}.${local.root_domain}"
+  }
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": ["ec2.amazonaws.com", "spotfleet.amazonaws.com"]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}

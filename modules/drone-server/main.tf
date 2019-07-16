@@ -125,26 +125,6 @@ resource "aws_service_discovery_service" "ci_server" {
   }
 }
 
-
-resource "aws_iam_role" "ci_server_ecs_task" {
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-
-}
-
 resource "aws_iam_role_policy" "ci_server_ecs" {
   role = aws_iam_role.ci_server_ecs_task.name
   policy = templatefile("${path.module}/templates/drone-ecs.json", { server_log_group_arn = var.agent_log_group_arn, agent_log_group_arn = aws_cloudwatch_log_group.drone_server.arn, })
@@ -216,3 +196,20 @@ resource "aws_security_group_rule" "ci_server_app_ingress3" {
 
 }
 
+resource "aws_iam_role" "ci_server_ecs_task" {
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}

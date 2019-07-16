@@ -64,30 +64,6 @@ resource "aws_iam_instance_profile" "ci_server" {
   role = aws_iam_role.drone_agent.name
 }
 
-resource "aws_iam_role" "drone_agent" {
-  tags = {
-    "Name" = "${local.sub_domain}.${local.root_domain}"
-  }
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-
-}
-
-
 resource "aws_iam_role_policy" "ec2" {
   role = aws_iam_role.drone_agent.name
   policy = templatefile("${path.module}/templates/cluster-instance.json", { server_log_group_arn = local.server_log_group_arn, agent_log_group_arn = local.agent_log_group_arn })
@@ -122,4 +98,26 @@ resource "aws_security_group_rule" "ci_server_ecs_instance_ingress" {
   cidr_blocks = var.ip_access_whitelist
 
   security_group_id = aws_security_group.ci_server_ecs_instance.id
+}
+
+resource "aws_iam_role" "drone_agent" {
+  tags = {
+    "Name" = "${local.sub_domain}.${local.root_domain}"
+  }
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
 }
