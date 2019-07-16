@@ -1,6 +1,6 @@
 
 resource "aws_iam_role_policy" "spotfleet" {
-  role   = aws_iam_role.spotfleet.name
+  role = aws_iam_role.spotfleet.name
   policy = templatefile("${path.module}/templates/spot-fleet.json", {
     server_log_group_arn = var.server_log_group_arn,
     agent_log_group_arn  = var.agent_log_group_arn

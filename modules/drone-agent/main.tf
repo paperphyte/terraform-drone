@@ -10,7 +10,7 @@ resource "random_pet" "drone_task_runnner_name" {
 }
 
 resource "aws_ecs_task_definition" "drone_agent" {
-  family                = "drone-agent"
+  family = "drone-agent"
   container_definitions = templatefile("${path.module}/templates/task-definition.json", {
     log_group_region      = var.aws_region,
     log_group_drone_agent = aws_cloudwatch_log_group.drone_agent.name,

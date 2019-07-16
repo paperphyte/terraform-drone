@@ -113,11 +113,11 @@ module "ci_ecs_cluster_spotfleet" {
   cluster_instance_user_data         = local.cluster_instance_user_data
   instance_type                      = var.ecs_cluster_instance_type
   ec2_volume_size                    = var.ec2_volume_size
-  fqdn                = local.fqdn
-  target_capacity     = var.spot_fleet_target_capacity
-  bid_price           = var.spot_fleet_bid_price
-  allocation_strategy = var.spot_fleet_allocation_strategy
-  valid_until         = var.spot_fleet_valid_until
+  fqdn                               = local.fqdn
+  target_capacity                    = var.spot_fleet_target_capacity
+  bid_price                          = var.spot_fleet_bid_price
+  allocation_strategy                = var.spot_fleet_allocation_strategy
+  valid_until                        = var.spot_fleet_valid_until
 }
 
 module "build_agent" {
@@ -161,7 +161,7 @@ module "ci_server" {
   fargate_task_cpu                   = var.fargate_task_cpu
   fargate_task_memory                = var.fargate_task_memory
   fqdn                               = local.fqdn
-  sub_domain                    = var.ci_sub_domain
+  sub_domain                         = var.ci_sub_domain
   aws_region                         = var.aws_region
   app_version                        = var.drone_version
   app_debug                          = var.env_drone_logs_debug
