@@ -1,6 +1,7 @@
 locals {
   keypair_name                       = aws_key_pair.ci_tool.key_name
   rpc_secret                         = random_string.drone_rpc_secret.result
+  fqdn                               = "${var.ci_sub_domain}.${var.root_domain}"
   private_subnets                    = module.vpc.private_subnets
   public_subnets                     = module.vpc.public_subnets
   vpc_id                             = module.vpc.vpc_id
@@ -22,7 +23,6 @@ locals {
   db_port                            = module.ci_db.port
   cluster_instance_user_data         = module.ci_ecs_cluster.instance_user_data
   ci_server_service_name             = module.ci_server.service_name
-  fqdn                               = "${var.ci_sub_domain}.${var.root_domain}"
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -74,13 +74,12 @@ module "ci_db" {
   public_subnets                  = local.public_subnets
   private_subnets                 = local.private_subnets
   ci_server_app_security_group_id = local.ci_server_app_security_group_id
+  fqdn                            = local.fqdn
   db_identifier                   = var.db_identifier
   db_storage                      = var.db_storage_size
   db_instance_class               = var.db_instance_type
   db_name                         = var.db_name
   db_username                     = var.db_user
-  ci_sub_domain                   = var.ci_sub_domain
-  root_domain                     = var.root_domain
 }
 
 module "ci_ecs_cluster" {
