@@ -1,8 +1,4 @@
-variable "root_domain" {
-  description = "Pre-existing Route53 Hosted Zone domain"
-}
-
-variable "ci_sub_domain" {
+variable "sub_domain" {
   description = "Sub part of domain for ci"
 }
 
@@ -142,4 +138,8 @@ variable "build_agent_port" {
 variable "ip_access_whitelist" {
   description = "White-listed cidr IP to access user interface. Allow from [Github Hook IP](https://api.github.com/meta)   "
   default     = ["0.0.0.0/0"]
+}
+
+variable "fqdn" {
+  description = "Fully qualified domain name of ci"
 }

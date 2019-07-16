@@ -163,8 +163,8 @@ module "ci_server" {
   env_drone_repo_filter              = var.env_drone_repo_filter
   fargate_task_cpu                   = var.fargate_task_cpu
   fargate_task_memory                = var.fargate_task_memory
-  ci_sub_domain                      = var.ci_sub_domain
-  root_domain                        = var.root_domain
+  fqdn                               = local.fqdn
+  sub_domain                    = var.ci_sub_domain
   aws_region                         = var.aws_region
   app_version                        = var.drone_version
   app_debug                          = var.env_drone_logs_debug
