@@ -39,11 +39,11 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> v2.0"
   name    = local.fqdn
-  cidr    = "172.35.0.0/16"
+  cidr    = var.vpc_cidr
 
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
-  private_subnets = ["172.35.116.0/22", "172.35.120.0/22", "172.35.124.0/22"]
-  public_subnets  = ["172.35.16.0/22", "172.35.20.0/22", "172.35.24.0/22"]
+  private_subnets = var.vpc_private_subnets
+  public_subnets  = var.vpc_public_subnets
 
   assign_generated_ipv6_cidr_block = true
   enable_nat_gateway               = true

@@ -208,3 +208,18 @@ variable "update_dns_lambda_name" {
 variable "env_drone_secret" {
   description = "A string containing GitHub oauth Client Secret."
 }
+
+variable "vpc_public_subnets" {
+  type    = "list"
+  default = ["172.35.16.0/22", "172.35.20.0/22", "172.35.24.0/22"]
+}
+
+variable "vpc_private_subnets" {
+  type    = "list"
+  default = ["172.35.116.0/22", "172.35.120.0/22", "172.35.124.0/22"]
+}
+
+variable "vpc_cidr" {
+  type    = "string"
+  default = "172.35.0.0/16"
+}
