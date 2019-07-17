@@ -1,22 +1,14 @@
-variable "max_instances_count" {
-  description = "Max container instances running"
-}
-
-variable "min_instances_count" {
-  description = "Min container instances running"
-}
-
-variable "ecs_optimized_ami" {
-  type        = map(string)
-  description = "map of optimized amis"
-}
-
 variable "aws_region" {
   description = "AWS region where ci is deployed"
 }
 
-variable "instance_type" {
-  description = "EC2 Instance Type."
+variable "default_instance_count" {
+  description = "Number of instances not from spotfleet"
+}
+
+
+variable "default_instance_type" {
+  description = "Instance type of instances not from spotfleet"
 }
 
 variable "keypair_name" {
@@ -88,24 +80,20 @@ variable "node_instance_type" {
       name  = "t3.medium"
     }
     m5Large = {
-      price = 0.03
+      price = 0.04
       name  = "m5.large"
     }
   }
 }
 
-variable "target_capacity" {
-  description = "Target number of spot instances to seed the cluster with"
-}
-
-variable "bid_price" {
-  description = "Bid price for cluster resources"
-}
-
-variable "allocation_strategy" {
+variable "node_fleet_allocation_strategy" {
   description = "Strategy for seeding instances cross pools. Config only support one pool for now."
 }
 
-variable "valid_until" {
+variable "node_fleet_valid_until" {
   description = "Amount of time a spot fleet bid should stay active"
+}
+
+variable "default_node_fleet_bid" {
+  description = "Bid price for cluster resources"
 }

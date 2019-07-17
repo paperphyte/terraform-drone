@@ -15,11 +15,11 @@ locals {
 
 resource "aws_spot_fleet_request" "main" {
   iam_fleet_role                      = aws_iam_role.spotfleet.arn
-  spot_price                          = var.bid_price
-  allocation_strategy                 = var.allocation_strategy
-  target_capacity                     = var.target_capacity
+  spot_price                          = var.default_node_fleet_bid
+  allocation_strategy                 = var.node_fleet_allocation_strategy
+  target_capacity                     = var.min_node_fleet_requests_count
   terminate_instances_with_expiration = true
-  valid_until                         = var.valid_until
+  valid_until                         = var.node_fleet_valid_until
   replace_unhealthy_instances         = true
 
   lifecycle {

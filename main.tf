@@ -75,24 +75,23 @@ module "ci_db" {
 }
 
 module "ci_ecs_cluster" {
-  source               = "./modules/cluster"
-  server_log_group_arn = local.server_log_group_arn
-  agent_log_group_arn  = local.agent_log_group_arn
-  vpc_id               = local.vpc_id
-  public_subnets       = local.public_subnets
-  private_subnets      = local.private_subnets
-  keypair_name         = local.keypair_name
-  fqdn                 = local.fqdn
-  min_instances_count  = var.ecs_min_instances_count
-  max_instances_count  = var.ecs_max_instances_count
-  ecs_optimized_ami    = var.ecs_optimized_ami
-  aws_region           = var.aws_region
-  instance_type        = var.ecs_cluster_instance_type
-  ip_access_whitelist  = var.ip_access_whitelist
-  target_capacity      = var.spot_fleet_target_capacity
-  bid_price            = var.spot_fleet_bid_price
-  allocation_strategy  = var.spot_fleet_allocation_strategy
-  valid_until          = var.spot_fleet_valid_until
+  source                         = "./modules/cluster"
+  server_log_group_arn           = local.server_log_group_arn
+  agent_log_group_arn            = local.agent_log_group_arn
+  vpc_id                         = local.vpc_id
+  public_subnets                 = local.public_subnets
+  private_subnets                = local.private_subnets
+  keypair_name                   = local.keypair_name
+  fqdn                           = local.fqdn
+  aws_region                     = var.aws_region
+  default_instance_type          = var.default_instance_type
+  default_instance_count         = var.default_instance_count
+  ip_access_whitelist            = var.ip_access_whitelist
+  min_node_fleet_requests_count  = var.min_node_fleet_requests_count
+  max_node_fleet_requests_count  = var.max_node_fleet_requests_count
+  default_node_fleet_bid         = var.default_node_fleet_bid
+  node_fleet_allocation_strategy = var.node_fleet_allocation_strategy
+  node_fleet_valid_until         = var.node_fleet_valid_until
 }
 
 module "build_agent" {

@@ -5,9 +5,9 @@ resource "aws_ecs_cluster" "ci_server" {
 resource "aws_autoscaling_group" "ci_server_drone_agent" {
   name                 = "ci-server-drone-agent"
   vpc_zone_identifier  = var.private_subnets
-  min_size             = var.min_instances_count
-  max_size             = var.max_instances_count
-  desired_capacity     = var.min_instances_count
+  min_size             = var.default_instance_count
+  max_size             = var.default_instance_count
+  desired_capacity     = var.default_instance_count
   launch_configuration = aws_launch_configuration.ci_server_app.name
 
   tags = [
@@ -36,7 +36,7 @@ resource "aws_launch_configuration" "ci_server_app" {
 
   key_name             = var.keypair_name
   image_id             = data.aws_ami.amazon_linux_2.id
-  instance_type        = var.instance_type
+  instance_type        = var.default_instance_type
   iam_instance_profile = aws_iam_instance_profile.ci_server.name
   user_data            = templatefile("${path.module}/templates/cloud-config.yml", { ecs_cluster_name = aws_ecs_cluster.ci_server.name })
 
