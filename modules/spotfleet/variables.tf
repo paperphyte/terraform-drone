@@ -3,21 +3,7 @@ variable "ec2_volume_size" {
   description = "Size of ec2 disk in GB"
 }
 
-variable "target_capacity" {
-  description = "Target number of spot instances to seed the cluster with"
-}
 
-variable "bid_price" {
-  description = "Bid price for cluster resources"
-}
-
-variable "allocation_strategy" {
-  description = "Strategy for seeding instances cross pools. Config only support one pool for now."
-}
-
-variable "valid_until" {
-  description = "Amount of time a spot fleet bid should stay active"
-}
 
 variable "cluster_ami_image_id" {
   description = "Image ID for ec2 cluster instances"

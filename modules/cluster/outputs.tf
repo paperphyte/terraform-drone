@@ -17,19 +17,3 @@ output "arn" {
   value       = aws_ecs_cluster.ci_server.arn
   description = "Name for cluster"
 }
-
-output "ami_image_id" {
-  value       = data.aws_ami.amazon_linux_2.image_id
-  description = "Image ID for ec2 cluster instances"
-}
-
-output "iam_instance_profile" {
-  value       = aws_iam_instance_profile.ci_server.name
-  description = "Instance Profile name of cluster ec2 instances"
-}
-
-output "instance_user_data" {
-  value       = templatefile("${path.module}/templates/cloud-config.yml", { ecs_cluster_name = aws_ecs_cluster.ci_server.name })
-  description = "User data for launching new spot instance"
-}
-

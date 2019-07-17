@@ -64,3 +64,48 @@ variable "ec2_volume_size" {
   description = "Size of ec2 disk in GB"
 }
 
+variable "node_scaling_cooldown" {
+  description = "Node fleet scaling cooldown"
+  default     = 300
+}
+
+variable "min_node_fleet_requests_count" {
+  description = "Min slaves"
+  default = 1
+}
+
+variable "max_node_fleet_requests_count" {
+  description = "Max slaves"
+  default = 4
+}
+
+variable "node_instance_type" {
+  type        = map
+  description = "Node instance type"
+  default = {
+    t3Medium = {
+      price = 0.02
+      name  = "t3.medium"
+    }
+    m5Large = {
+      price = 0.03
+      name  = "m5.large"
+    }
+  }
+}
+
+variable "target_capacity" {
+  description = "Target number of spot instances to seed the cluster with"
+}
+
+variable "bid_price" {
+  description = "Bid price for cluster resources"
+}
+
+variable "allocation_strategy" {
+  description = "Strategy for seeding instances cross pools. Config only support one pool for now."
+}
+
+variable "valid_until" {
+  description = "Amount of time a spot fleet bid should stay active"
+}

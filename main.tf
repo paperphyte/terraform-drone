@@ -8,8 +8,6 @@ locals {
   vpc_arn                            = module.vpc.vpc_arn
   ci_server_app_security_group_id    = module.ci_server.ci_server_security_group_id
   cluster_instance_security_group_id = module.ci_ecs_cluster.instance_security_group_id
-  cluster_ami_image_id               = module.ci_ecs_cluster.ami_image_id
-  cluster_iam_instance_profile       = module.ci_ecs_cluster.iam_instance_profile
   server_log_group_arn               = module.ci_server.drone_server_log_group_arn
   agent_log_group_arn                = module.build_agent.drone_agent_log_group_arn
   rpc_server_url                     = module.ci_server.rpc_server_url
@@ -21,7 +19,6 @@ locals {
   db_password                        = module.ci_db.root_password
   db_engine                          = module.ci_db.engine
   db_port                            = module.ci_db.port
-  cluster_instance_user_data         = module.ci_ecs_cluster.instance_user_data
   ci_server_service_name             = module.ci_server.service_name
 }
 
@@ -92,23 +89,6 @@ module "ci_ecs_cluster" {
   aws_region           = var.aws_region
   instance_type        = var.ecs_cluster_instance_type
   ip_access_whitelist  = var.ip_access_whitelist
-}
-
-module "ci_ecs_cluster_spotfleet" {
-  source                             = "./modules/spotfleet"
-  server_log_group_arn               = local.server_log_group_arn
-  agent_log_group_arn                = local.agent_log_group_arn
-  public_subnets                     = local.public_subnets
-  private_subnets                    = local.private_subnets
-  keypair_name                       = local.keypair_name
-  cluster_instance_security_group_id = local.cluster_instance_security_group_id
-  cluster_ami_image_id               = local.cluster_ami_image_id
-  cluster_name                       = local.cluster_name
-  cluster_iam_instance_profile       = local.cluster_iam_instance_profile
-  cluster_instance_user_data         = local.cluster_instance_user_data
-  instance_type                      = var.ecs_cluster_instance_type
-  ec2_volume_size                    = var.ec2_volume_size
-  fqdn                               = local.fqdn
   target_capacity                    = var.spot_fleet_target_capacity
   bid_price                          = var.spot_fleet_bid_price
   allocation_strategy                = var.spot_fleet_allocation_strategy

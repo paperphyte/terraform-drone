@@ -66,6 +66,7 @@ resource "aws_security_group" "ci_server_ecs_instance" {
   name        = "ci-server-ecs-instance-sg"
 }
 
+
 resource "aws_security_group_rule" "ci_server_ecs_instance_egress" {
   type        = "egress"
   description = "RDP a"
