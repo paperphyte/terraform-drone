@@ -99,12 +99,12 @@ variable "drone_agent_port" {
 
 variable "drone_agent_min_count" {
   description = "Min drone agens running."
-  default     = 1
+  default     = 4
 }
 
 variable "drone_agent_max_count" {
   description = "Max drone agents running."
-  default     = 2
+  default     = 50
 }
 
 variable "drone_version" {
