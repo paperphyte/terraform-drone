@@ -58,13 +58,13 @@ variable "default_ttl" {
 
 variable "default_instance_count" {
   description = "Number of instances not from spotfleet"
-  default     = 1
+  default     = 0
 }
 
 
 variable "default_instance_type" {
   description = "Instance type of instances not from spotfleet"
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "ecs_container_cpu" {
