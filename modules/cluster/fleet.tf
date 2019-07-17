@@ -56,8 +56,6 @@ resource "aws_spot_fleet_request" "main" {
   }
 }
 
-
-
 resource "aws_appautoscaling_target" "node" {
   min_capacity       = var.min_node_fleet_requests_count
   max_capacity       = var.max_node_fleet_requests_count
@@ -116,11 +114,9 @@ resource "aws_cloudwatch_metric_alarm" "cpu_metric_alarm" {
   statistic           = "Average"
   threshold           = lookup(element(local.slave_cpu_alarm_cfg, count.index), "treshold")
   treat_missing_data  = "missing"
-
   dimensions = {
     FleetRequestId = aws_spot_fleet_request.main.id
   }
-
   alarm_description = "Autoscaling ci ecs nodes on CPUUtilization"
   alarm_actions     = [lookup(element(local.slave_cpu_alarm_cfg, count.index), "action")]
 }

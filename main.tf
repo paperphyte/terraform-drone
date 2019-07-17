@@ -89,10 +89,10 @@ module "ci_ecs_cluster" {
   aws_region           = var.aws_region
   instance_type        = var.ecs_cluster_instance_type
   ip_access_whitelist  = var.ip_access_whitelist
-  target_capacity                    = var.spot_fleet_target_capacity
-  bid_price                          = var.spot_fleet_bid_price
-  allocation_strategy                = var.spot_fleet_allocation_strategy
-  valid_until                        = var.spot_fleet_valid_until
+  target_capacity      = var.spot_fleet_target_capacity
+  bid_price            = var.spot_fleet_bid_price
+  allocation_strategy  = var.spot_fleet_allocation_strategy
+  valid_until          = var.spot_fleet_valid_until
 }
 
 module "build_agent" {

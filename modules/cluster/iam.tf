@@ -43,7 +43,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "spotfleet" {
-  role = aws_iam_role.spotfleet.name
+  role   = aws_iam_role.spotfleet.name
   policy = file("${path.module}/templates/spot-fleet.json")
 }
 

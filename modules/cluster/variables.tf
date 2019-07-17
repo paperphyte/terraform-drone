@@ -71,12 +71,12 @@ variable "node_scaling_cooldown" {
 
 variable "min_node_fleet_requests_count" {
   description = "Min slaves"
-  default = 1
+  default     = 1
 }
 
 variable "max_node_fleet_requests_count" {
   description = "Max slaves"
-  default = 4
+  default     = 4
 }
 
 variable "node_instance_type" {
