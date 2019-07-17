@@ -8,10 +8,6 @@
       {
         "containerPort": ${drone_server_port},
         "protocol": "tcp"
-      },
-      {
-        "containerPort": ${drone_auto_cert_port},
-        "protocol": "tcp"
       }
     ],
     "environment": [

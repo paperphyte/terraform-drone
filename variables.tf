@@ -89,7 +89,7 @@ variable "fargate_task_memory" {
 
 variable "drone_server_port" {
   description = "Port of Drone Server"
-  default     = 443
+  default     = 80
 }
 
 variable "drone_agent_port" {

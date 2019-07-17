@@ -142,15 +142,5 @@ module "ci_server" {
   app_port                           = var.drone_server_port
   build_agent_port                   = var.drone_agent_port
   ip_access_whitelist                = var.ip_access_whitelist
+  root_domain_zone_id                = var.root_domain_zone_id
 }
-
-module "dns_update" {
-  source                 = "./modules/dns-update"
-  cluster_arn            = local.cluster_arn
-  ecs_service_name       = local.ci_server_service_name
-  vpc_arn                = local.vpc_arn
-  task_domain_name       = "${var.ci_sub_domain}.${var.root_domain}"
-  route53_hosted_zone_id = var.root_domain_zone_id
-  function_name          = var.update_dns_lambda_name
-}
-
