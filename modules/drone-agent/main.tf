@@ -68,7 +68,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_metric_alarm" {
   period              = 300
   statistic           = "Average"
   threshold           = lookup(element(local.agent_cpu_alarm_cfg, count.index), "treshold")
-  
+
   dimensions = {
     ClusterName = var.cluster_name
     ServiceName = aws_ecs_service.drone_agent.name
@@ -84,20 +84,20 @@ resource "aws_appautoscaling_target" "drone_agent" {
   resource_id        = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  role_arn = aws_iam_role.agent_scaling.arn
+  role_arn           = aws_iam_role.agent_scaling.arn
 }
 
 
 resource "aws_appautoscaling_policy" "agent_scale_up" {
-  name                      = "drone-agent-scale-up"
-  service_namespace         = "ecs"
-  resource_id               = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
-  scalable_dimension        = "ecs:service:DesiredCount"
+  name               = "drone-agent-scale-up"
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
-    adjustment_type               = "ChangeInCapacity"
-    cooldown                  = 300
-    metric_aggregation_type       = "Average"
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 300
+    metric_aggregation_type = "Average"
 
     step_adjustment {
       metric_interval_lower_bound = 0
@@ -107,15 +107,15 @@ resource "aws_appautoscaling_policy" "agent_scale_up" {
 }
 
 resource "aws_appautoscaling_policy" "agent_scale_down" {
-  name                      = "drone-agent-scale-down"
-  service_namespace         = "ecs"
-  resource_id               = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
-  scalable_dimension        = "ecs:service:DesiredCount"
-  
+  name               = "drone-agent-scale-down"
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.cluster_name}/${aws_ecs_service.drone_agent.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+
   step_scaling_policy_configuration {
-    adjustment_type               = "ChangeInCapacity"
-    cooldown                  = 300
-    metric_aggregation_type       = "Average"
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 300
+    metric_aggregation_type = "Average"
 
     step_adjustment {
       metric_interval_lower_bound = 0
@@ -143,13 +143,13 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "agent_scaling" {
-    role       = aws_iam_role.agent_scaling.name
-    policy_arn = aws_iam_policy.agent_scaling.arn
+  role = aws_iam_role.agent_scaling.name
+  policy_arn = aws_iam_policy.agent_scaling.arn
 }
 
 resource "aws_iam_policy" "agent_scaling" {
-    name        = "${aws_iam_role.agent_scaling.name}-policy"
-    policy = <<EOF
+  name = "${aws_iam_role.agent_scaling.name}-policy"
+  policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
