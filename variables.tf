@@ -109,7 +109,7 @@ variable "drone_agent_max_count" {
 
 variable "drone_version" {
   description = "Ci Drone version."
-  default     = "1.0.0-rc.6"
+  default     = "1.2.1"
 }
 
 variable "env_github_client" {
@@ -165,6 +165,21 @@ variable "node_fleet_allocation_strategy" {
 variable "node_fleet_valid_until" {
   description = "Amount of time a spot fleet bid should stay active"
   default     = "2022-02-22T02:02:02Z"
+}
+
+variable "node_instance_type" {
+  type        = map
+  description = "Node instance type"
+  default = {
+    t3Medium = {
+      price = 0.02
+      name  = "t3.medium"
+    }
+    m5Large = {
+      price = 0.04
+      name  = "m5.large"
+    }
+  }
 }
 
 variable "default_node_fleet_bid" {

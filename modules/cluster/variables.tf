@@ -74,16 +74,6 @@ variable "max_node_fleet_requests_count" {
 variable "node_instance_type" {
   type        = map
   description = "Node instance type"
-  default = {
-    t3Medium = {
-      price = 0.02
-      name  = "t3.medium"
-    }
-    m5Large = {
-      price = 0.04
-      name  = "m5.large"
-    }
-  }
 }
 
 variable "node_fleet_allocation_strategy" {

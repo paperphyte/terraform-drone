@@ -92,6 +92,7 @@ module "ci_ecs_cluster" {
   default_node_fleet_bid         = var.default_node_fleet_bid
   node_fleet_allocation_strategy = var.node_fleet_allocation_strategy
   node_fleet_valid_until         = var.node_fleet_valid_until
+  node_instance_type             = var.node_instance_type
 }
 
 module "build_agent" {
