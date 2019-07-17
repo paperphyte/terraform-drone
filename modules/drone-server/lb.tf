@@ -3,7 +3,7 @@ resource "aws_lb" "ci" {
   security_groups = [aws_security_group.lb.id]
   subnets         = var.public_subnets
   tags = {
-      Name = var.fqdn
+    Name = var.fqdn
   }
 }
 
@@ -51,10 +51,10 @@ resource "aws_route53_record" "ci_public_url" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = var.fqdn
   validation_method = "DNS"
-  tags              = {
+  tags = {
     Name = var.fqdn
   }
-  provider          = "aws"
+  provider = "aws"
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
@@ -67,23 +67,23 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 }
 
 resource "aws_route53_record" "cert_validation" {
-  name    = aws_acm_certificate.cert.domain_validation_options[0].resource_record_name
-  type    = aws_acm_certificate.cert.domain_validation_options[0].resource_record_type
-  zone_id = var.root_domain_zone_id
-  records = [aws_acm_certificate.cert.domain_validation_options[0].resource_record_value]
-  ttl     = 300
+  name       = aws_acm_certificate.cert.domain_validation_options[0].resource_record_name
+  type       = aws_acm_certificate.cert.domain_validation_options[0].resource_record_type
+  zone_id    = var.root_domain_zone_id
+  records    = [aws_acm_certificate.cert.domain_validation_options[0].resource_record_value]
+  ttl        = 300
   depends_on = [aws_acm_certificate.cert]
 }
 
 resource "aws_security_group" "lb" {
   description = "Traffic from web to Drone Server"
-  name   = "ci-server-lb-sg"
-  vpc_id = var.vpc_id
-  
+  name        = "ci-server-lb-sg"
+  vpc_id      = var.vpc_id
+
   egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

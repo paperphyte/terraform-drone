@@ -146,14 +146,14 @@ resource "aws_security_group_rule" "ci_server_app_ingress" {
 
 resource "aws_security_group_rule" "ci_server_app_ingress2" {
 
-  type        = "ingress"
-  description = "Drone CI/CD User inteface access"
-  depends_on  = [aws_security_group.ci_server_app]
-  protocol    = "tcp"
-  from_port   = var.app_port
-  to_port     = var.app_port
+  type                     = "ingress"
+  description              = "Drone CI/CD User inteface access"
+  depends_on               = [aws_security_group.ci_server_app]
+  protocol                 = "tcp"
+  from_port                = var.app_port
+  to_port                  = var.app_port
   source_security_group_id = aws_security_group.lb.id
-  security_group_id = aws_security_group.ci_server_app.id
+  security_group_id        = aws_security_group.ci_server_app.id
 }
 
 resource "aws_iam_role" "ci_server_ecs_task" {
