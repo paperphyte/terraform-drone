@@ -31,7 +31,6 @@ resource "aws_ecs_task_definition" "drone_server" {
     drone_agents_enabled      = var.env_drone_agents_enabled,
     drone_auto_cert           = var.env_drone_auto_cert,
     drone_server_proto        = var.env_drone_server_proto,
-    drone_auto_cert_port      = var.drone_auto_cert_port,
     drone_http_ssl_redirect   = var.env_drone_http_ssl_redirect
   })
   requires_compatibilities = ["FARGATE"]
@@ -57,8 +56,14 @@ resource "aws_ecs_service" "drone_server" {
 
   network_configuration {
     security_groups  = [aws_security_group.ci_server_app.id]
-    subnets          = var.public_subnets
+    subnets          = var.private_subnets
     assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ci_server.id
+    container_name   = "ci-server-drone-server"
+    container_port   = var.app_port
   }
 
   service_registries {
@@ -137,37 +142,18 @@ resource "aws_security_group_rule" "ci_server_app_ingress" {
 
   source_security_group_id = var.cluster_instance_security_group_id
   security_group_id        = aws_security_group.ci_server_app.id
-
 }
 
 resource "aws_security_group_rule" "ci_server_app_ingress2" {
 
-  type        = "ingress"
-  description = "Drone CI/CD User inteface access"
-  depends_on  = [aws_security_group.ci_server_app]
-  protocol    = "tcp"
-  from_port   = var.app_port
-  to_port     = var.app_port
-
-  cidr_blocks = var.ip_access_whitelist
-
-  security_group_id = aws_security_group.ci_server_app.id
-}
-
-resource "aws_security_group_rule" "ci_server_app_ingress3" {
-  type        = "ingress"
-  description = "Drone CI/CD used during autocert"
-  depends_on  = [aws_security_group.ci_server_app]
-  protocol    = "tcp"
-  from_port   = var.drone_auto_cert_port
-  to_port     = var.drone_auto_cert_port
-
-  cidr_blocks = [
-    "0.0.0.0/0",
-  ]
-
-  security_group_id = aws_security_group.ci_server_app.id
-
+  type                     = "ingress"
+  description              = "Drone CI/CD User inteface access"
+  depends_on               = [aws_security_group.ci_server_app]
+  protocol                 = "tcp"
+  from_port                = var.app_port
+  to_port                  = var.app_port
+  source_security_group_id = aws_security_group.lb.id
+  security_group_id        = aws_security_group.ci_server_app.id
 }
 
 resource "aws_iam_role" "ci_server_ecs_task" {

@@ -83,23 +83,18 @@ variable "env_drone_agents_enabled" {
 }
 
 variable "env_drone_http_ssl_redirect" {
-  default     = "true"
+  default     = "false"
   description = "If is set to true, then only allow HTTPS requests."
 }
 
 variable "env_drone_auto_cert" {
-  default     = "true"
+  default     = false
   description = "auto cert drone supported [true]"
 }
 
 variable "env_drone_server_proto" {
-  default     = "https"
+  default     = "http"
   description = "server protocol"
-}
-
-variable "drone_auto_cert_port" {
-  default     = 80
-  description = "port used during auto cert"
 }
 
 variable "vpc_id" {
@@ -142,4 +137,8 @@ variable "ip_access_whitelist" {
 
 variable "fqdn" {
   description = "Fully qualified domain name of ci"
+}
+
+variable "root_domain_zone_id" {
+  description = "Pre-existing Route53 Hosted Zone ID"
 }
