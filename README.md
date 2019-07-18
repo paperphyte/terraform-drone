@@ -5,10 +5,11 @@ required to run Drone CI/CD on AWS, including:
 
  * VPC from community modules
  * SSL certificate using Amazon Certificate Manager (ACM)
- * Domain name using AWS Route53 which points to ALB
+ * AWS Route53 pointing to Alb for drone-ci
  * AWS Elastic Cloud Service (ECS) and AWS Fargate running Drone Server
  * AWS Spot Fleet for EC2 instances in ECS
  * Postgres flavoured RDS for build data
+ * AWS Secrets Manager for handling of CI Secrets
 
 ## AWS Spot Fleet
 
@@ -73,4 +74,4 @@ The **root_domain_zone_id** should be a pre-existing AWS Route53 public zone
 | ci\_server\_url | public accessible url of the ci |
 
 
-forked from: https://github.com/appleboy/drone-terraform-in-aws
+forked from: https://github.com/paperphyte/terraform-drone
