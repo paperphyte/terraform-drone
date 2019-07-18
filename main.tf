@@ -20,6 +20,8 @@ locals {
   db_engine                          = module.ci_db.engine
   db_port                            = module.ci_db.port
   ci_server_service_name             = module.ci_server.service_name
+  drone_secrets_shared_secret = module.ci_server.drone_secrets_shared_secret
+  drone_secrets_url   = module.ci_server.drone_secrets_url
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -102,6 +104,8 @@ module "build_agent" {
   cluster_id          = local.cluster_id
   cluster_name        = local.cluster_name
   fqdn                = local.fqdn
+  drone_secrets_shared_secret = local.drone_secrets_shared_secret
+  drone_secrets_url   = local.drone_secrets_url
   aws_region          = var.aws_region
   app_version         = var.drone_version
   app_debug           = var.env_drone_logs_debug

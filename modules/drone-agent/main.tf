@@ -21,6 +21,8 @@ resource "aws_ecs_task_definition" "drone_agent" {
     container_cpu         = var.container_cpu,
     container_memory      = var.container_memory,
     drone_logs_debug      = var.app_debug
+    drone_secrets_shared_secret = var.drone_secrets_shared_secret
+    drone_secrets_url = var.drone_secrets_url
   })
 
   volume {

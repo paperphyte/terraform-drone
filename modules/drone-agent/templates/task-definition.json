@@ -11,7 +11,11 @@
       { "name": "DRONE_RPC_SERVER", "value": "${drone_rpc_server}" },
       { "name": "DRONE_RPC_SECRET", "value": "${drone_rpc_secret}" },
       { "name": "DRONE_RUNNER_NAME", "value": "${runner_name}" },
-      { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}"}
+      { "name": "DRONE_LOGS_DEBUG", "value": "${drone_logs_debug}" },
+      { "name": "DRONE_LOGS_TRACE", "value": "${drone_logs_debug}" },
+      { "name": "DRONE_SECRET_SECRET", "value": "${drone_secrets_shared_secret}" },
+      { "name": "DRONE_SECRET_ENDPOINT", "value": "${drone_secrets_url}" }
+
     ],
     "mountPoints": [{
       "sourceVolume": "dockersock",
