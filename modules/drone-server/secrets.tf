@@ -7,12 +7,12 @@ resource "aws_ecs_task_definition" "drone_secrets" {
   family = "drone-secrets"
 
   container_definitions = templatefile("${path.module}/templates/secrets-task-definition.json", {
-    log_group_drone_secrets    = aws_cloudwatch_log_group.drone_server.name,
-    log_group_region           = var.aws_region,
-    shared_secret_key          = random_id.drone_secrets_shared_secret.hex,
-    container_cpu              = var.fargate_task_cpu,
-    container_memory           = var.fargate_task_memory,
-    addr = "${aws_service_discovery_service.drone_secrets.name}.${aws_service_discovery_private_dns_namespace.ci.name}"
+    log_group_drone_secrets = aws_cloudwatch_log_group.drone_server.name,
+    log_group_region        = var.aws_region,
+    shared_secret_key       = random_id.drone_secrets_shared_secret.hex,
+    container_cpu           = var.fargate_task_cpu,
+    container_memory        = var.fargate_task_memory,
+    addr                    = "${aws_service_discovery_service.drone_secrets.name}.${aws_service_discovery_private_dns_namespace.ci.name}"
   })
 
   requires_compatibilities = ["FARGATE"]
@@ -53,18 +53,18 @@ resource "aws_security_group" "drone_secrets" {
   name        = "drone-secrets-task-sg"
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = [
       "0.0.0.0/0",
     ]
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 3000
-    to_port     = 3000
+    protocol        = "tcp"
+    from_port       = 3000
+    to_port         = 3000
     security_groups = [var.cluster_instance_security_group_id]
   }
 }

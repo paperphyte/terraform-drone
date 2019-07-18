@@ -12,17 +12,17 @@ resource "random_pet" "drone_task_runnner_name" {
 resource "aws_ecs_task_definition" "drone_agent" {
   family = "drone-agent"
   container_definitions = templatefile("${path.module}/templates/task-definition.json", {
-    log_group_region      = var.aws_region,
-    log_group_drone_agent = aws_cloudwatch_log_group.drone_agent.name,
-    runner_name           = random_pet.drone_task_runnner_name.id,
-    drone_rpc_server      = var.rpc_server,
-    drone_rpc_secret      = var.rpc_secret,
-    drone_version         = var.app_version,
-    container_cpu         = var.container_cpu,
-    container_memory      = var.container_memory,
-    drone_logs_debug      = var.app_debug
+    log_group_region            = var.aws_region,
+    log_group_drone_agent       = aws_cloudwatch_log_group.drone_agent.name,
+    runner_name                 = random_pet.drone_task_runnner_name.id,
+    drone_rpc_server            = var.rpc_server,
+    drone_rpc_secret            = var.rpc_secret,
+    drone_version               = var.app_version,
+    container_cpu               = var.container_cpu,
+    container_memory            = var.container_memory,
+    drone_logs_debug            = var.app_debug
     drone_secrets_shared_secret = var.drone_secrets_shared_secret
-    drone_secrets_url = var.drone_secrets_url
+    drone_secrets_url           = var.drone_secrets_url
   })
 
   volume {

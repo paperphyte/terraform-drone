@@ -16,7 +16,7 @@ output "service_name" {
 }
 
 output "drone_secrets_shared_secret" {
-  value =  random_id.drone_secrets_shared_secret.hex
+  value = random_id.drone_secrets_shared_secret.hex
 }
 
 output "drone_secrets_url" {
