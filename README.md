@@ -74,4 +74,4 @@ The **root_domain_zone_id** should be a pre-existing AWS Route53 public zone
 | ci\_server\_url | public accessible url of the ci |
 
 
-forked from: https://github.com/paperphyte/terraform-drone
+forked from: https://github.com/appleboy/drone-terraform-in-aws
