@@ -20,6 +20,8 @@ locals {
   db_engine                          = module.ci_db.engine
   db_port                            = module.ci_db.port
   ci_server_service_name             = module.ci_server.service_name
+  drone_secrets_shared_secret        = module.ci_server.drone_secrets_shared_secret
+  drone_secrets_url                  = module.ci_server.drone_secrets_url
 }
 
 resource "random_string" "drone_rpc_secret" {
@@ -96,19 +98,21 @@ module "ci_ecs_cluster" {
 }
 
 module "build_agent" {
-  source              = "./modules/drone-agent"
-  rpc_server          = local.rpc_server_url
-  rpc_secret          = local.rpc_secret
-  cluster_id          = local.cluster_id
-  cluster_name        = local.cluster_name
-  fqdn                = local.fqdn
-  aws_region          = var.aws_region
-  app_version         = var.drone_version
-  app_debug           = var.env_drone_logs_debug
-  container_cpu       = var.ecs_container_cpu
-  container_memory    = var.ecs_container_memory
-  min_container_count = var.drone_agent_min_count
-  max_container_count = var.drone_agent_max_count
+  source                      = "./modules/drone-agent"
+  rpc_server                  = local.rpc_server_url
+  rpc_secret                  = local.rpc_secret
+  cluster_id                  = local.cluster_id
+  cluster_name                = local.cluster_name
+  fqdn                        = local.fqdn
+  drone_secrets_shared_secret = local.drone_secrets_shared_secret
+  drone_secrets_url           = local.drone_secrets_url
+  aws_region                  = var.aws_region
+  app_version                 = var.drone_version
+  app_debug                   = var.env_drone_logs_debug
+  container_cpu               = var.ecs_container_cpu
+  container_memory            = var.ecs_container_memory
+  min_container_count         = var.drone_agent_min_count
+  max_container_count         = var.drone_agent_max_count
 }
 
 module "ci_server" {

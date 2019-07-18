@@ -46,3 +46,11 @@ variable "fqdn" {
   description = "Fully qualified domain name of ci"
 }
 
+variable "drone_secrets_shared_secret" {
+  description = "Shared secret key used to authenticate incoming requests, and encrypt the response body."
+}
+
+variable "drone_secrets_url" {
+  description = "Endpoint for accessing the secrets plugin"
+}
+
