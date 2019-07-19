@@ -5,6 +5,12 @@ resource "aws_cloudwatch_log_group" "drone_server" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  ssm_root = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
+}
+
 resource "aws_ecs_task_definition" "drone_server" {
   family = "drone-server"
   container_definitions = templatefile("${path.module}/templates/task-definition.json", {
@@ -22,8 +28,8 @@ resource "aws_ecs_task_definition" "drone_server" {
     drone_server_port         = var.app_port,
     container_cpu             = var.fargate_task_cpu,
     container_memory          = var.fargate_task_memory,
-    drone_github_client       = var.env_github_client,
-    drone_github_secret       = var.env_github_secret,
+    drone_github_client       = "${local.ssm_root}/DRONE_GITHUB_CLIENT_ID",
+    drone_github_secret       = "${local.ssm_root}/DRONE_GITHUB_CLIENT_SECRET",
     drone_admin               = var.env_drone_admin,
     drone_github_organization = var.env_drone_github_organization,
     drone_webhook_list        = var.env_drone_webhook_list,
@@ -36,8 +42,8 @@ resource "aws_ecs_task_definition" "drone_server" {
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
 
-  task_role_arn      = aws_iam_role.ci_server_ecs_task.arn
-  execution_role_arn = aws_iam_role.ci_server_ecs_task.arn
+  task_role_arn      = aws_iam_role.drone_secrets_ecs_task.arn
+  execution_role_arn = aws_iam_role.drone_secrets_ecs_task.arn
 
   cpu    = var.fargate_task_cpu
   memory = var.fargate_task_memory

@@ -17,6 +17,14 @@ The build agents cluster are seeded with spot instances per default.
 To get the cluster seeded with a minimum non spot instances for build
 agents use **default_instance_count = 1** default is 0.
 
+## Github Oauth2 Application Secret
+
+Create And Store the Client Id And secret as Parameters in SSM
+
+aws ssm put-parameter --name "DRONE_GITHUB_CLIENT_ID" --value "Github Oauth2 app id" --type String
+aws ssm put-parameter --name "DRONE_GITHUB_CLIENT_SECRET" --value "Github Oauth2 app secret" --type String
+
+
 ## Configuration
 
 Choose an AWS region with both [AWS Fargate with Amazon ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html) and [AWS Service Discovery ](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html)
