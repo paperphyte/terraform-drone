@@ -130,8 +130,6 @@ module "ci_server" {
   private_subnets                    = local.private_subnets
   vpc_id                             = local.vpc_id
   cluster_instance_security_group_id = local.cluster_instance_security_group_id
-  env_github_client                  = var.env_github_client
-  env_github_secret                  = var.env_github_secret
   env_drone_admin                    = var.env_drone_admin
   env_drone_github_organization      = var.env_drone_github_organization
   env_drone_webhook_list             = var.env_drone_webhook_list

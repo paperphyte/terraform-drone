@@ -50,14 +50,6 @@ variable "fargate_task_memory" {
   description = "Fargate task CPU and memory at the task level."
 }
 
-variable "env_github_client" {
-  description = "A string containing GitHub oauth Client ID."
-}
-
-variable "env_github_secret" {
-  description = "A string containing GitHub oauth Client Secret."
-}
-
 variable "env_drone_admin" {
   description = "Drone privileged User"
 }

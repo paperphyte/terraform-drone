@@ -112,14 +112,6 @@ variable "drone_version" {
   default     = "1.2.1"
 }
 
-variable "env_github_client" {
-  description = "A string containing GitHub oauth Client ID."
-}
-
-variable "env_github_secret" {
-  description = "A string containing GitHub oauth Client Secret."
-}
-
 variable "env_drone_admin" {
   description = "Drone privileged User"
 }
