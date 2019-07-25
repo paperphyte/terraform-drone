@@ -1,8 +1,6 @@
     env_drone_admin = "<User is admin>"
     env_drone_github_organization = "<User belongs to this org>"
     keypair_public_key = "ssh-rsa <retrieve with ssh-keygen -y -f ci-tools.pem>"
-    env_github_client = "<GITHUB CLIENT ID>
-    env_github_secret = "<GITHUB CLIENT SECRET>"
     root_domain_zone_id = "<Route53 Zone ID>"
     root_domain = "<CI root part domain>"
     env_drone_repo_filter = "<repository owner fitler>"
