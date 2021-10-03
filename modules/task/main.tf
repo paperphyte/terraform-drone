@@ -168,3 +168,48 @@ resource "aws_service_discovery_service" "discovery_service" {
     failure_threshold = 10
   }
 }
+
+# ----------------------------------------
+# AWS Servie
+# ----------------------------------------
+resource "aws_ecs_service" "service" {
+  name            = var.service_name
+  cluster         = var.service_cluster_id
+  task_definition = aws_ecs_task_definition.task_definition.arn
+  desired_count   = var.task_max_count
+  capacity_provider_strategy {
+    capacity_provider = var.service_capacity_provider
+    weight            = 1
+    base              = 1
+  }
+
+  network_configuration {
+    security_groups  = [aws_security_group.service_sg.id]
+    subnets          = var.vpc_private_subnets
+    assign_public_ip = false
+  }
+
+  dynamic "load_balancer" {
+    for_each = var.load_balancer
+    content {
+      target_group_arn = load_balancer.value["target_group_arn"]
+      container_name   = load_balancer.value["container_name"]
+      container_port   = load_balancer.value["container_port"]
+    }
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.discovery_service.arn
+  }
+}
+
+resource "aws_appautoscaling_target" "ecs_service" {
+  min_capacity       = var.task_min_count
+  max_capacity       = var.task_max_count
+  resource_id        = "service/${var.service_cluster_name}/${var.service_name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+  depends_on = [
+    aws_ecs_service.service
+  ]
+}
