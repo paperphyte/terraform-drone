@@ -68,8 +68,3 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
-© 2021 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
