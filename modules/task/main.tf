@@ -146,3 +146,25 @@ resource "aws_ecs_task_definition" "task_definition" {
     environment = var.task_environment_vars
   }])
 }
+
+# ----------------------------------------
+# AWS ECS Service Discovery
+# ----------------------------------------
+resource "aws_service_discovery_service" "discovery_service" {
+  name = var.service_name
+
+  dns_config {
+    namespace_id = var.service_discovery_dns_namespace_id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 10
+  }
+}
