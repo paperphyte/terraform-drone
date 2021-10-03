@@ -61,3 +61,21 @@ resource "aws_iam_role_policy_attachment" "task_ssm_read" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
 
+# ----------------------------------------
+# AWS Security Group
+# ----------------------------------------
+resource "aws_security_group" "service_sg" {
+  description = "Restrict access to service."
+  vpc_id      = var.vpc_id
+  name        = "${var.task_name}-service-sg"
+}
+
+resource "aws_security_group_rule" "service_default_egress" {
+  type              = "egress"
+  description       = "Outgoing service traffic rule"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.service_sg.id
+}
