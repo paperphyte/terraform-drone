@@ -14,6 +14,7 @@ Module creates public fargate tasks accessible from internet through shared pre-
  * ```task_memory``` (Optional) Memory of Fargate task
  * ```task_container_cpu``` (Optional) cpu of Fargate task container
  * ```task_container_memory``` (Optional) memory of Fargate task container
+ * ```task_requires_compatibilities``` (Optional) Define task type for compatibilities `FARGATE` or `EC2`
  * ```task_container_log_group_name``` Name of log group for container
  * ```task_min_count``` (Optional) Minimum number of task containers
  * ```task_max_count``` (Optional) Maximum number of task containers

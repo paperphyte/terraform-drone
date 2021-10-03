@@ -53,6 +53,12 @@ variable "task_container_memory" {
   type        = number
 }
 
+variable "task_requires_compatibilities" {
+  description = "Define task type for compatibilities"
+  default     = "FARGATE"
+  type        = string
+}
+
 variable "task_container_log_group_name" {
   description = "Name of log group for container"
   type        = string
