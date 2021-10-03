@@ -79,3 +79,70 @@ resource "aws_security_group_rule" "service_default_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.service_sg.id
 }
+
+# ----------------------------------------
+# AWS Task Definition
+# ----------------------------------------
+resource "aws_ecs_task_definition" "task_definition" {
+  family                   = var.service_name
+  requires_compatibilities = [var.task_requires_compatibilities]
+  network_mode             = "awsvpc"
+
+  task_role_arn      = aws_iam_role.ecs_task_role.arn
+  execution_role_arn = aws_iam_role.ecs_task_role.arn
+
+  cpu    = var.task_cpu
+  memory = var.task_memory
+  dynamic "volume" {
+    for_each = var.volumes
+    content {
+      name      = volume.value.name
+      host_path = lookup(volume.value, "host_path", null)
+      dynamic "efs_volume_configuration" {
+        for_each = lookup(volume.value, "efs_volume_configuration", [])
+        content {
+          file_system_id          = lookup(efs_volume_configuration.value, "file_system_id", null)
+          root_directory          = lookup(efs_volume_configuration.value, "root_directory", null)
+          transit_encryption      = lookup(efs_volume_configuration.value, "transit_encryption", null)
+          transit_encryption_port = lookup(efs_volume_configuration.value, "transit_encryption_port", null)
+          dynamic "authorization_config" {
+            for_each = lookup(efs_volume_configuration.value, "authorization_config", [])
+            content {
+              access_point_id = lookup(authorization_config.value, "access_point_id", null)
+              iam             = lookup(authorization_config.value, "iam", null)
+            }
+          }
+        }
+      }
+    }
+  }
+  container_definitions = jsonencode([{
+    name   = var.task_name
+    image  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.task_image}:${var.task_image_version}"
+    cpu    = var.task_container_cpu
+    memory = var.task_container_memory
+    mountPoints = length(var.mount_points) > 0 ? [
+      for mount_point in var.mount_points : {
+        containerPath = lookup(mount_point, "containerPath")
+        sourceVolume  = lookup(mount_point, "sourceVolume")
+        readOnly      = tobool(lookup(mount_point, "readOnly", false))
+      }
+    ] : var.mount_points
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-stream-prefix = "/${var.task_name}"
+        awslogs-group         = var.task_container_log_group_name
+        awslogs-region        = data.aws_region.current.name
+      }
+    }
+    portMappings = [
+      {
+        containerPort = var.task_bind_port
+        protocol      = "tcp"
+      }
+    ]
+    secrets     = var.task_secret_vars
+    environment = var.task_environment_vars
+  }])
+}
