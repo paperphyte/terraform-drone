@@ -16,6 +16,8 @@ Module Creates a load balancer with ssl certificate and rules for ssl.
  * ```fqdn``` Fully qualified domain name of lb such as "myhost.example.com"
  * ```lb_target_group_id```Target group id 
  * ```lb_id``` ID of loadbalancer
+ * ```service_discovery_private_dns_namespace_id```Service discovery private namespace id
+ 
  
  ## Using the module
 
