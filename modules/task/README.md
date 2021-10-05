@@ -29,6 +29,7 @@ Module creates public fargate tasks accessible from internet through shared pre-
  * ```mount_points``` (Optional) List of maps representing mount points with required attributes `containerPath`, `sourceVolume` and `readOnly
  * ```volumes``` (Optional) Volume blocks that containers can have
  * ```load_balancer``` (Optional) One loadbalancer definition in a list for dynamic block
+ * ```container_registry``` (Optional) Specific container registry to use
 
 ## Attribute Reference
 

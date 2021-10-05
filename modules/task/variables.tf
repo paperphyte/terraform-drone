@@ -167,3 +167,9 @@ variable "load_balancer" {
   }))
   default = []
 }
+
+variable "container_registry" {
+  type = string
+  description = "Registry of container image"
+  default = null
+}

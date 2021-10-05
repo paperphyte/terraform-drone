@@ -17,3 +17,7 @@ before running terraform apply.
 | `drone/DRONE_GITHUB_CLIENT_ID` | aws ssm put-parameter --name "drone/DRONE_GITHUB_CLIENT_ID" --type SecureString --region eu-central-1 --value "" |
 | `drone/DRONE_GITHUB_CLIENT_SECRET` | aws ssm put-parameter --name "drone/DRONE_GITHUB_CLIENT_SECRET" --type SecureString --region eu-central-1 --value "" |
 | `drone/DRONE_LICENSE_KEY` | aws ssm put-parameter --name "drone/DRONE_LICENSE_KEY" --type SecureString --region eu-central-1 --value "" |
+
+## Docker Images 
+
+Looks at default for ecr image in current region and account for drone ci images

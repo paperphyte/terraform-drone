@@ -1,3 +1,6 @@
+locals {
+  container_registry = var.container_registry ? var.container_registry : "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.task_image}"
+}
 # ----------------------------------------
 # AWS IAM Role
 # ----------------------------------------
@@ -118,7 +121,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   }
   container_definitions = jsonencode([{
     name   = var.task_name
-    image  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.task_image}:${var.task_image_version}"
+    image  = "${local.container_registry}:${var.task_image_version}"
     cpu    = var.task_container_cpu
     memory = var.task_container_memory
     mountPoints = length(var.mount_points) > 0 ? [
