@@ -28,7 +28,7 @@ variable "target_health_check" {
   description = "Target health check"
   type        = map(any)
   default = {
-    path                = "/health"
+    path                = "/healthz"
     matcher             = "200"
     timeout             = 30
     interval            = 60
