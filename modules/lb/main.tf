@@ -39,7 +39,7 @@ resource "aws_lb" "lb" {
 
 resource "aws_route53_record" "lb_public_url" {
   zone_id = data.aws_route53_zone.root_zone.zone_id
-  name    = "${var.dns_hostname}.${var.dns_root_name}"
+  name    = "${var.dns_hostname}.${data.aws_route53_zone.root_zone.zone_id.name}"
   type    = "A"
 
   alias {
