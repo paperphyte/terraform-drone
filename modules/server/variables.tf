@@ -1,13 +1,13 @@
 variable "drone_user_filter" {
   type        = string
   description = "Optional comma-separated list of accounts. Registration is limited to users in this list, or users that are members of organizations included in this list."
-  default     = "paperphyte"
+  default     = ""
 }
 
 variable "drone_admin" {
   type        = string
   description = "User account created on startup."
-  default     = "krusipo"
+  default     = ""
 }
 
 variable "log_group_id" {
