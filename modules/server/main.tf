@@ -127,16 +127,19 @@ resource "random_string" "server_secret" {
 }
 
 module "drone_server_task" {
-  source                        = "../task"
-  vpc_id                        = lookup(var.network, "vpc_id", null)
-  vpc_private_subnets           = lookup(var.network, "private_subnets", null)
-  lb_target_group_id            = module.drone_lb.lb_target_group_id
-  task_name                     = "drone-server"
-  task_image                    = "drone/drone"
-  task_image_version            = lookup(var.server_versions, "server", null)
-  task_container_log_group_name = var.log_group_id
-  container_registry            = local.container_registry
-  task_bind_port                = 80
+  source                             = "../task"
+  vpc_id                             = lookup(var.network, "vpc_id", null)
+  vpc_private_subnets                = lookup(var.network, "private_subnets", null)
+  lb_target_group_id                 = module.drone_lb.lb_target_group_id
+  task_name                          = "drone-server"
+  task_image                         = "drone/drone"
+  task_image_version                 = lookup(var.server_versions, "server", null)
+  task_container_log_group_name      = var.log_group_id
+  container_registry                 = local.container_registry
+  service_discovery_dns_namespace_id = module.drone_lb.service_discovery_dns_namespace_id
+  service_cluster_name               = lookup(var.network, "cluster_name", null)
+  service_cluster_id                 = lookup(var.network, "cluster_id", null)
+  task_bind_port                     = 80
   load_balancer = [{
     target_group_arn = module.drone_lb.lb_target_group_id
     container_name   = "drone-server"
