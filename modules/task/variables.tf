@@ -169,7 +169,7 @@ variable "load_balancer" {
 }
 
 variable "container_registry" {
-  type = string
+  type        = string
   description = "Registry of container image"
-  default = null
+  default     = null
 }

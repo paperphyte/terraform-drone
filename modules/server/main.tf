@@ -242,6 +242,33 @@ module "drone_server_task" {
   ]
 }
 
+resource "aws_iam_policy" "server_task_policy" {
+  name = "server_task_policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.name}*",
+        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.name}*/"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "server_task_custom" {
+  role       = module.drone_server_task.task_role_id
+  policy_arn = aws_iam_policy.server_task_policy.arn
+}
+
 # ----------------------------------------
 # RDS EC2 SSM Instance Helper
 # ----------------------------------------
