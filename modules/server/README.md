@@ -14,4 +14,6 @@ Setup all Drone Server related tasks
  * ```
 ## Attribute Reference
 
+ * ```server_sg_id```Server Security Group
+
 ## Using the module

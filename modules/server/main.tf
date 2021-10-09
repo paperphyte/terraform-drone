@@ -126,6 +126,11 @@ resource "random_string" "server_secret" {
   special = false
 }
 
+resource "random_string" "database_secret" {
+  length  = 16
+  special = false
+}
+
 module "drone_server_task" {
   source                             = "../task"
   vpc_id                             = lookup(var.network, "vpc_id", null)
@@ -163,8 +168,13 @@ module "drone_server_task" {
     {
       "name" : "DRONE_SERVER_SECRET",
       "valueFrom" : random_string.server_secret.result
+    },
+    {
+      "name" : "DRONE_DATABASE_SECRET",
+      "valueFrom" : random_string.database_secret.result
     }
   ]
+  
   task_environment_vars = [
     {
       "name" : "DRONE_LOGS_TRACE",
