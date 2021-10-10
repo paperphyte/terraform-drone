@@ -7,9 +7,10 @@ Sets up a Drone runner type on spot instances
  * ```instance
  * ```capacity_name```
  * ```capacity_count```
- * ```runner_label```
+ * ```name```
  * ```network```
-
+ * ```node```
+ * ```server_addr```
 
 ## Attribute Reference
 

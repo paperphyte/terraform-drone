@@ -36,9 +36,9 @@ variable "capacity_count" {
   default = 1
 }
 
-variable "runner_label" {
+variable "name" {
   type    = string
-  default = "instance:micro"
+  default = "micro"
 }
 
 variable "network" {
@@ -49,4 +49,28 @@ variable "network" {
     cluster_name        = string
     cluster_id          = string
   })
+}
+
+variable "task_cpu" {
+  description = "CPU of Fargate taskalue"
+  default     = 2048
+  type        = number
+}
+
+variable "task_memory" {
+  description = "Memory of Fargate task"
+  default     = 829
+  type        = number
+}
+
+variable "runner_version" {
+
+}
+
+variable "runner_port" {
+  default = 80
+}
+
+variable "server_security_group" {
+
 }

@@ -11,4 +11,33 @@ module "vpc" {
   public_subnets         = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
+resource "aws_cloudwatch_log_group" "drone" {
+  name = "drone-cluster"
+}
+
+resource "aws_ecs_cluster" "cluster" {
+  name = "drone-cluster"
+  capacity_providers = [
+    "FARGATE", "FARGATE_SPOT"
+  ]
+  default_capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = 1
+  }
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+  configuration {
+    execute_command_configuration {
+      logging = "OVERRIDE"
+
+      log_configuration {
+        cloud_watch_encryption_enabled = true
+        cloud_watch_log_group_name     = aws_cloudwatch_log_group.drone.name
+      }
+    }
+  }
+}
+
 
