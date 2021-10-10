@@ -39,7 +39,7 @@ resource "aws_lb" "lb" {
 
 resource "aws_route53_record" "lb_public_url" {
   zone_id = data.aws_route53_zone.root_zone.zone_id
-  name    = "${var.dns_hostname}.${data.aws_route53_zone.root_zone.zone_id.name}"
+  name    = "${var.dns_hostname}.${data.aws_route53_zone.root_zone.name}"
   type    = "A"
 
   alias {
@@ -135,5 +135,5 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 resource "aws_service_discovery_private_dns_namespace" "private_dns_namespace" {
   name        = "${var.dns_hostname}.local"
   description = "Private paperphyte-tools DNS"
-  vpc         = module.vpc.vpc_id
+  vpc         = var.vpc_id
 }

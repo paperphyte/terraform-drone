@@ -47,7 +47,6 @@ variable "network" {
     vpc_public_subnets  = string
     vpc_private_subnets = bool
     cluster_name        = string
-    cluster_id          = string
   })
 }
 
@@ -64,7 +63,7 @@ variable "task_memory" {
 }
 
 variable "runner_version" {
-
+  default = "1.6.3"
 }
 
 variable "runner_port" {
@@ -73,4 +72,9 @@ variable "runner_port" {
 
 variable "server_security_group" {
 
+}
+
+variable "efs_id" {
+  type    = list(any)
+  default = []
 }

@@ -6,7 +6,7 @@ variable "drone_user_filter" {
 
 variable "drone_admin" {
   type        = string
-  description = "User account created on startup."
+  description = "User account created on start up."
   default     = ""
 }
 
@@ -23,11 +23,11 @@ variable "drone_debug" {
 variable "network" {
   type = object({
     vpc_id              = string
-    vpc_public_subnets  = string
-    vpc_private_subnets = bool
+    vpc_public_subnets  = list(string)
+    vpc_private_subnets = list(string)
     cluster_name        = string
     cluster_id          = string
-    allow_cidr_range    = list
+    allow_cidr_range    = list(string)
     dns_root_name       = string
   })
 }

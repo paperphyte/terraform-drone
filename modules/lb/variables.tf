@@ -5,7 +5,7 @@ variable "vpc_id" {
 
 variable "vpc_public_subnets" {
   description = "Public subnets to create lb in"
-  type        = list(any)
+  type        = list(string)
 }
 
 variable "dns_root_name" {

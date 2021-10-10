@@ -24,3 +24,13 @@ data "aws_ssm_parameter" "db_user_name" {
 data "aws_ssm_parameter" "db_password" {
   name = "drone/DRONE_REPOSITORY_FILTER"
 }
+
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-ecs-hvm-2.0.*-x86_64-ebs"]
+  }
+}

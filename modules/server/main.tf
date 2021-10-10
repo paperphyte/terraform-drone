@@ -38,7 +38,7 @@ module "db" {
   port     = lookup(var.db, "port", null)
 
   vpc_security_group_ids = [aws_security_group.db.id]
-  subnet_ids             = lookup(var.network, "vpc_private_subnets", null)
+  subnet_ids             = lookup(var.network, "vpc_private_subnets")
 
   maintenance_window = "Mon:00:00-Mon:03:00"
   backup_window      = "03:00-06:00"
@@ -76,9 +76,9 @@ resource "aws_security_group_rule" "db_drone_task" {
 # ----------------------------------------
 
 module "drone_lb" {
-  source             = "./modules/lb"
+  source             = "../lb"
   vpc_id             = lookup(var.network, "vpc_id", null)
-  vpc_public_subnets = lookup(var.network, "vpc_public_subnets", null)
+  vpc_public_subnets = lookup(var.network, "vpc_public_subnets")
   dns_root_name      = lookup(var.network, "dns_root_name", null)
   dns_hostname       = "drone"
   target_port        = 80
@@ -99,10 +99,9 @@ resource "aws_security_group_rule" "ssl_ingress" {
 # ----------------------------------------
 
 resource "aws_s3_bucket" "drone_build_log_storage" {
-  provider = aws.eu_west
   bucket   = "drone-large-build-logs"
+
   acl      = "private"
-  tags     = local.common_tags
 
   versioning {
     enabled = true
@@ -133,6 +132,7 @@ resource "random_string" "database_secret" {
 
 module "drone_server_task" {
   source                             = "../task"
+  service_name = "drone-server"
   vpc_id                             = lookup(var.network, "vpc_id", null)
   vpc_private_subnets                = lookup(var.network, "private_subnets", null)
   lb_target_group_id                 = module.drone_lb.lb_target_group_id
@@ -141,7 +141,7 @@ module "drone_server_task" {
   task_image_version                 = lookup(var.server_versions, "server", null)
   task_container_log_group_name      = var.log_group_id
   container_registry                 = local.container_registry
-  service_discovery_dns_namespace_id = module.drone_lb.service_discovery_dns_namespace_id
+  service_discovery_dns_namespace_id = module.drone_lb.service_discovery_private_dns_namespace_id
   service_cluster_name               = lookup(var.network, "cluster_name", null)
   service_cluster_id                 = lookup(var.network, "cluster_id", null)
   task_bind_port                     = 80
@@ -194,7 +194,7 @@ module "drone_server_task" {
     },
     {
       name  = "DRONE_RPC_SERVER"
-      value = "https://${modules.lb.fqdn}"
+      value = "https://${module.drone_lb.fqdn}"
     },
     {
       name  = "DRONE_SERVER_PROTO"
@@ -202,7 +202,7 @@ module "drone_server_task" {
     },
     {
       name  = "DRONE_SERVER_HOST"
-      value = modules.lb.fqdn
+      value = module.drone_lb.fqdn
     },
     {
       name  = "DRONE_TLS_AUTOCERT"
@@ -230,7 +230,7 @@ module "drone_server_task" {
     },
     {
       name  = "DRONE_S3_BUCKET"
-      value = aws_s3_bucket.drone_build_log_storage.name
+      value = aws_s3_bucket.drone_build_log_storage.bucket
     },
     {
       name  = "AWS_DEFAULT_REGION"
@@ -268,8 +268,8 @@ resource "aws_iam_policy" "server_task_policy" {
         "s3:*"
       ],
       "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.name}*",
-        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.name}*/"
+        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.bucket}*",
+        "arn:aws:s3:::${aws_s3_bucket.drone_build_log_storage.bucket}*/"
       ]
     }
   ]
@@ -318,11 +318,11 @@ resource "aws_iam_instance_profile" "instance_helper" {
 }
 
 resource "aws_instance" "instance_helper" {
-  ami                    = data.aws_ami.amazon_linux.id
+  ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = "t3.nano"
   iam_instance_profile   = aws_iam_instance_profile.instance_helper.name
   vpc_security_group_ids = [aws_security_group.db.id]
-  subnet_id              = element(var.vpc_private_subnets, 1)
+  subnet_id              = element(lookup(var.network, "private_subnets", null), 1)
   user_data = templatefile(
     "${path.module}/templates/helper-userdata.sh.tpl",
     {

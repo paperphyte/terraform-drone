@@ -40,4 +40,26 @@ resource "aws_ecs_cluster" "cluster" {
   }
 }
 
+module "server" {
+  source            = "./modules/server"
+  drone_user_filter = "paperphyte"
+  drone_admin       = "krusipo"
+  log_group_id      = aws_cloudwatch_log_group.drone.id
+  network = {
+    vpc_id              = module.vpc.vpc_id
+    vpc_public_subnets  = module.vpc.public_subnets
+    vpc_private_subnets = module.vpc.private_subnets
+    cluster_name        = aws_ecs_cluster.cluster.name
+    cluster_id          = aws_ecs_cluster.cluster.id
+    allow_cidr_range    = ["90.235.250.235/32"]
+    dns_root_name       = "paperhyte.com"
+  }
 
+  server_versions = {
+    server    = "v2.4.0"
+    secrets   = "v1.0.0"
+    registry  = "v1.0.0"
+    monorepo  = "v0.4.2"
+    admission = "v1.0.0"
+  }
+}
