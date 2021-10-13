@@ -51,8 +51,9 @@ module "server" {
     vpc_private_subnets = module.vpc.private_subnets
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
-    allow_cidr_range    = ["90.235.250.235/32"]
-    dns_root_name       = "paperhyte.com"
+    allow_cidr_range    = concat(["90.235.250.235/32"], data.github_ip_ranges.ranges.hooks)
+    dns_root_name       = var.dns_root_name
+    dns_root_id         = var.dns_root_id
   }
 
   server_versions = {

@@ -29,6 +29,7 @@ variable "network" {
     cluster_id          = string
     allow_cidr_range    = list(string)
     dns_root_name       = string
+    dns_root_id         = string
   })
 }
 

@@ -2,27 +2,19 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_ssm_parameter" "github_client_id" {
-  name = "drone/DRONE_GITHUB_CLIENT_ID"
+  name = "/drone/github/client_id"
 }
 
 data "aws_ssm_parameter" "github_client_secret" {
-  name = "drone/DRONE_GITHUB_CLIENT_SECRET"
-}
-
-data "aws_ssm_parameter" "github_webhook_cidr_blocks" {
-  name = "drone/DRONE_GITHUB_WEBHOOK_CIDR"
-}
-
-data "aws_ssm_parameter" "drone_repo_filter" {
-  name = "drone/DRONE_REPOSITORY_FILTER"
+  name = "/drone/github/client_secret"
 }
 
 data "aws_ssm_parameter" "db_user_name" {
-  name = "drone/DRONE_REPOSITORY_FILTER"
+  name = "/drone/db/user_name"
 }
 
 data "aws_ssm_parameter" "db_password" {
-  name = "drone/DRONE_REPOSITORY_FILTER"
+  name = "/drone/db/password"
 }
 
 data "aws_ami" "amazon_linux_2" {

@@ -33,6 +33,7 @@ module "db" {
   allocated_storage          = 20
   storage_encrypted          = false
 
+  name     = lookup(var.db, "name", null)
   username = data.aws_ssm_parameter.db_user_name.value
   password = data.aws_ssm_parameter.db_password.value
   port     = lookup(var.db, "port", null)
@@ -76,12 +77,10 @@ resource "aws_security_group_rule" "db_drone_task" {
 # ----------------------------------------
 
 module "drone_lb" {
-  source             = "../lb"
-  vpc_id             = lookup(var.network, "vpc_id", null)
-  vpc_public_subnets = lookup(var.network, "vpc_public_subnets")
-  dns_root_name      = lookup(var.network, "dns_root_name", null)
-  dns_hostname       = "drone"
-  target_port        = 80
+  source       = "../lb"
+  network      = var.network
+  dns_hostname = "drone"
+  target_port  = 80
 }
 
 resource "aws_security_group_rule" "ssl_ingress" {
@@ -99,9 +98,9 @@ resource "aws_security_group_rule" "ssl_ingress" {
 # ----------------------------------------
 
 resource "aws_s3_bucket" "drone_build_log_storage" {
-  bucket   = "drone-large-build-logs"
+  bucket = "drone-large-build-logs"
 
-  acl      = "private"
+  acl = "private"
 
   versioning {
     enabled = true
@@ -130,9 +129,28 @@ resource "random_string" "database_secret" {
   special = false
 }
 
+resource "aws_ssm_parameter" "data_source" {
+  name  = "/drone/db/datasource"
+  type  = "String"
+  value = "postgres://${data.aws_ssm_parameter.db_user_name.value}:${data.aws_ssm_parameter.db_password.value}@${module.db.db_instance_address}:${lookup(var.db, "port", null)}/postgres?sslmode=disable"
+}
+
+resource "aws_ssm_parameter" "rpc_secret" {
+  name  = "/drone/server/rpc_secret"
+  type  = "String"
+  value = random_string.server_secret.result
+}
+
+resource "aws_ssm_parameter" "database_secret" {
+  name  = "/drone/server/database_secret"
+  type  = "String"
+  value = random_string.database_secret.result
+}
+
+
 module "drone_server_task" {
   source                             = "../task"
-  service_name = "drone-server"
+  service_name                       = "drone-server"
   vpc_id                             = lookup(var.network, "vpc_id", null)
   vpc_private_subnets                = lookup(var.network, "private_subnets", null)
   lb_target_group_id                 = module.drone_lb.lb_target_group_id
@@ -161,28 +179,27 @@ module "drone_server_task" {
       valueFrom = data.aws_ssm_parameter.github_client_id.arn
     },
     {
-      "name" : "DRONE_DATABASE_DATASOURCE",
-      "valueFrom" : "postgres://${data.aws_ssm_parameter.db_user_name.value}:${data.aws_ssm_parameter.db_password.value}@${module.db.db_instance_address}:${lookup(var.db, "port", null)}/postgres?sslmode=disable"
-
+      name      = "DRONE_DATABASE_DATASOURCE"
+      valueFrom = aws_ssm_parameter.data_source.arn
     },
     {
-      "name" : "DRONE_SERVER_SECRET",
-      "valueFrom" : random_string.server_secret.result
+      name      = "DRONE_RPC_SECRET",
+      valueFrom = aws_ssm_parameter.rpc_secret.arn
     },
     {
-      "name" : "DRONE_DATABASE_SECRET",
-      "valueFrom" : random_string.database_secret.result
+      name      = "DRONE_DATABASE_SECRET",
+      valueFrom = aws_ssm_parameter.database_secret.arn
     }
   ]
-  
+
   task_environment_vars = [
     {
-      "name" : "DRONE_LOGS_TRACE",
-      "value" : "${var.drone_debug}"
+      name  = "DRONE_LOGS_TRACE"
+      value = "${var.drone_debug}"
     },
     {
-      "name" : "DRONE_LOGS_DEBUG",
-      "value" : "${var.drone_debug}"
+      name  = "DRONE_LOGS_DEBUG",
+      value = "${var.drone_debug}"
     },
     {
       name  = "DRONE_DATABASE_DRIVER"
@@ -241,16 +258,16 @@ module "drone_server_task" {
       value = data.aws_region.current.name
     },
     {
-      "name" : "DRONE_CLEANUP_INTERVAL",
-      "value" : "24h"
+      name  = "DRONE_CLEANUP_INTERVAL",
+      value = "24h"
     },
     {
-      "name" : "DRONE_CLEANUP_DEADLINE_RUNNING",
-      "value" : "6h"
+      name  = "DRONE_CLEANUP_DEADLINE_RUNNING",
+      value = "6h"
     },
     {
-      "name" : "DRONE_CLEANUP_DEADLINE_PENDING",
-      "value" : "72h"
+      name  = "DRONE_CLEANUP_DEADLINE_PENDING",
+      value = "72h"
     }
   ]
 }
@@ -322,7 +339,7 @@ resource "aws_instance" "instance_helper" {
   instance_type          = "t3.nano"
   iam_instance_profile   = aws_iam_instance_profile.instance_helper.name
   vpc_security_group_ids = [aws_security_group.db.id]
-  subnet_id              = element(lookup(var.network, "private_subnets", null), 1)
+  subnet_id              = element(var.network["vpc_private_subnets"], 0)
   user_data = templatefile(
     "${path.module}/templates/helper-userdata.sh.tpl",
     {

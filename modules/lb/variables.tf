@@ -1,21 +1,20 @@
-variable "vpc_id" {
-  description = "ID of vpc"
-  type        = string
-}
-
-variable "vpc_public_subnets" {
-  description = "Public subnets to create lb in"
-  type        = list(string)
-}
-
-variable "dns_root_name" {
-  description = "Domain name of root zone such as 'example.com'"
-  type        = string
-}
 
 variable "dns_hostname" {
   description = "Host name of lb such as 'myhost'"
   type        = string
+}
+
+variable "network" {
+  type = object({
+    vpc_id              = string
+    vpc_public_subnets  = list(string)
+    vpc_private_subnets = list(string)
+    cluster_name        = string
+    cluster_id          = string
+    allow_cidr_range    = list(string)
+    dns_root_name       = string
+    dns_root_id         = string
+  })
 }
 
 variable "target_port" {

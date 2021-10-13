@@ -4,7 +4,7 @@
 resource "aws_security_group" "lb" {
   description = "Traffic from web to ${var.dns_hostname} loadbalancer"
   name        = "${var.dns_hostname}-lb-sg"
-  vpc_id      = var.vpc_id
+  vpc_id      = lookup(var.network, "vpc_id")
 }
 
 resource "aws_security_group_rule" "lb_egress" {
@@ -33,13 +33,13 @@ resource "aws_security_group_rule" "lb_ingress" {
 resource "aws_lb" "lb" {
   name            = "${var.dns_hostname}-lb"
   security_groups = [aws_security_group.lb.id]
-  subnets         = var.vpc_public_subnets
+  subnets         = lookup(var.network, "vpc_public_subnets")
 
 }
 
 resource "aws_route53_record" "lb_public_url" {
-  zone_id = data.aws_route53_zone.root_zone.zone_id
-  name    = "${var.dns_hostname}.${data.aws_route53_zone.root_zone.name}"
+  zone_id = lookup(var.network, "dns_root_id")
+  name    = "${var.dns_hostname}.${lookup(var.network, "dns_root_name")}"
   type    = "A"
 
   alias {
@@ -69,7 +69,7 @@ resource "aws_lb_target_group" "lb" {
   name        = "${var.dns_hostname}-target-group"
   port        = var.target_port
   protocol    = "HTTP"
-  vpc_id      = var.vpc_id
+  vpc_id      = lookup(var.network, "vpc_id")
   target_type = "ip"
 
   dynamic "health_check" {
@@ -102,7 +102,7 @@ resource "aws_lb_listener" "public" {
 # AWS Certificate
 # ----------------------------------------
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "${var.dns_hostname}.${var.dns_root_name}"
+  domain_name       = "${var.dns_hostname}.${lookup(var.network, "dns_root_name")}"
   validation_method = "DNS"
 }
 
@@ -120,7 +120,7 @@ resource "aws_route53_record" "cert_validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = data.aws_route53_zone.root_zone.zone_id
+  zone_id         = lookup(var.network, "dns_root_id")
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
@@ -135,5 +135,5 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 resource "aws_service_discovery_private_dns_namespace" "private_dns_namespace" {
   name        = "${var.dns_hostname}.local"
   description = "Private paperphyte-tools DNS"
-  vpc         = var.vpc_id
+  vpc         = lookup(var.network, "vpc_id")
 }
