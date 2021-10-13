@@ -98,7 +98,7 @@ resource "aws_security_group_rule" "ssl_ingress" {
 # ----------------------------------------
 
 resource "aws_s3_bucket" "drone_build_log_storage" {
-  bucket = "drone-large-build-logs"
+  bucket = "drone.${lookup(var.network, "dns_root_name")}-console-logs"
 
   acl = "private"
 
@@ -125,7 +125,7 @@ resource "random_string" "server_secret" {
 }
 
 resource "random_string" "database_secret" {
-  length  = 16
+  length  = 32
   special = false
 }
 
@@ -152,7 +152,7 @@ module "drone_server_task" {
   source                             = "../task"
   service_name                       = "drone-server"
   vpc_id                             = lookup(var.network, "vpc_id", null)
-  vpc_private_subnets                = lookup(var.network, "private_subnets", null)
+  vpc_private_subnets                = lookup(var.network, "vpc_private_subnets", null)
   lb_target_group_id                 = module.drone_lb.lb_target_group_id
   task_name                          = "drone-server"
   task_image                         = "drone/drone"
@@ -176,7 +176,7 @@ module "drone_server_task" {
     },
     {
       name      = "DRONE_GITHUB_CLIENT_SECRET"
-      valueFrom = data.aws_ssm_parameter.github_client_id.arn
+      valueFrom = data.aws_ssm_parameter.github_client_secret.arn
     },
     {
       name      = "DRONE_DATABASE_DATASOURCE"
@@ -234,7 +234,7 @@ module "drone_server_task" {
       value = var.drone_user_filter
     },
     {
-      name  = "DRONE_GImodules.lb.fqdnTHUB_SERVER"
+      name  = "DRONE_GITHUB_SERVER"
       value = "https://github.com"
     },
     {

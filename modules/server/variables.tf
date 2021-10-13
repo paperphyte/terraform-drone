@@ -58,7 +58,7 @@ variable "db" {
   })
   default = {
     port           = 5432
-    name           = "drone-postgres"
-    instance_class = "t3.micro"
+    name           = "drone"
+    instance_class = "db.t3.micro"
   }
 }

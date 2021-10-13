@@ -37,7 +37,7 @@ resource "aws_iam_policy" "task_ssm_policy" {
       "Resource": "*",
        "Condition": {
           "StringEquals": {
-              "kms:EncryptionContext:PARAMETER_ARN":"arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/${upper(var.task_name)}_*"
+              "kms:EncryptionContext:PARAMETER_ARN":"arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/drone/*"
           }
       }
     }
@@ -118,7 +118,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   }
   container_definitions = jsonencode([{
     name   = var.task_name
-    image  = "${var.container_registry}:${var.task_image_version}"
+    image  = "${var.container_registry}${var.task_image}:${var.task_image_version}"
     cpu    = var.task_container_cpu
     memory = var.task_container_memory
     mountPoints = length(var.mount_points) > 0 ? [
