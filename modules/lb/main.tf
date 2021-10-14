@@ -71,6 +71,7 @@ resource "aws_lb_target_group" "lb" {
   protocol    = "HTTP"
   vpc_id      = lookup(var.network, "vpc_id")
   target_type = "ip"
+  
 
   dynamic "health_check" {
     for_each = [var.target_health_check]

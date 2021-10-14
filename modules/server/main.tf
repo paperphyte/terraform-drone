@@ -147,7 +147,6 @@ resource "aws_ssm_parameter" "database_secret" {
   value = random_string.database_secret.result
 }
 
-
 module "drone_server_task" {
   source                             = "../task"
   service_name                       = "drone-server"
@@ -271,6 +270,18 @@ module "drone_server_task" {
     }
   ]
 }
+
+
+resource "aws_security_group_rule" "lb_grafana_ingress_rule" {
+  security_group_id        = module.drone_server_task.service_sg_id
+  description              = "Allow LB to communicate the Fargate ECS service."
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 80
+  to_port                  = 80
+  source_security_group_id = module.drone_lb.lb_sg_id
+}
+
 
 resource "aws_iam_policy" "server_task_policy" {
   name = "server_task_policy"

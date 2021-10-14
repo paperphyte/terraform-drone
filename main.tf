@@ -51,7 +51,11 @@ module "server" {
     vpc_private_subnets = module.vpc.private_subnets
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
-    allow_cidr_range    = concat(["95.198.57.109/32"], data.github_ip_ranges.ranges.hooks_ipv4)
+    allow_cidr_range    = concat(
+      concat(["95.198.57.109/32"],
+      data.github_ip_ranges.ranges.hooks_ipv4),
+      ["${element(module.vpc.nat_public_ips, 0)}/32"]
+    )
     dns_root_name       = var.dns_root_name
     dns_root_id         = var.dns_root_id
   }

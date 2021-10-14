@@ -17,7 +17,7 @@ variable "log_group_id" {
 
 variable "drone_debug" {
   type    = string
-  default = "false"
+  default = "true"
 }
 
 variable "network" {
