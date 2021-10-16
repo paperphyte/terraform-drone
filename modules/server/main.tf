@@ -152,7 +152,6 @@ module "drone_server_task" {
   service_name                       = "drone-server"
   vpc_id                             = lookup(var.network, "vpc_id", null)
   vpc_private_subnets                = lookup(var.network, "vpc_private_subnets", null)
-  lb_target_group_id                 = module.drone_lb.lb_target_group_id
   task_name                          = "drone-server"
   task_image                         = "drone/drone"
   task_image_version                 = lookup(var.server_versions, "server", null)

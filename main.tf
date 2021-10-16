@@ -51,13 +51,13 @@ module "server" {
     vpc_private_subnets = module.vpc.private_subnets
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
-    allow_cidr_range    = concat(
+    allow_cidr_range = concat(
       concat(["95.198.57.109/32"],
       data.github_ip_ranges.ranges.hooks_ipv4),
       ["${element(module.vpc.nat_public_ips, 0)}/32"]
     )
-    dns_root_name       = var.dns_root_name
-    dns_root_id         = var.dns_root_id
+    dns_root_name = var.dns_root_name
+    dns_root_id   = var.dns_root_id
   }
 
   server_versions = {
@@ -67,4 +67,20 @@ module "server" {
     monorepo  = "v0.4.2"
     admission = "v1.0.0"
   }
+}
+
+module "defaultrunner" {
+  source = "./modules/runner"
+  network = {
+    vpc_id              = module.vpc.vpc_id
+    vpc_public_subnets  = module.vpc.public_subnets
+    vpc_private_subnets = module.vpc.private_subnets
+    cluster_name        = aws_ecs_cluster.cluster.name
+    cluster_id          = aws_ecs_cluster.cluster.id
+  }
+  runner_capacity                      = 2
+  server_security_group                = module.server.server_sg_id
+  log_group_id                         = aws_cloudwatch_log_group.drone.id
+  service_discovery_dns_namespace_id   = module.server.service_discovery_dns_namespace_id
+  service_discovery_dns_namespace_name = module.server.service_discovery_dns_namespace_name
 }

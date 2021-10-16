@@ -8,10 +8,6 @@ variable "vpc_private_subnets" {
   type        = list(string)
 }
 
-variable "lb_target_group_id" {
-  description = "Id of specific target group"
-  type        = string
-}
 
 variable "task_name" {
   description = "Name of task containeralue"

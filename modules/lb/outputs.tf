@@ -22,3 +22,8 @@ output "service_discovery_private_dns_namespace_id" {
   value       = aws_service_discovery_private_dns_namespace.private_dns_namespace.id
   description = "Service discovery private namespace id"
 }
+
+output "service_discovery_private_dns_namespace_name" {
+  value       = aws_service_discovery_private_dns_namespace.private_dns_namespace.name
+  description = "Service discovery private namespace id"
+}

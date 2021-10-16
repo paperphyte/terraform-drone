@@ -116,6 +116,7 @@ resource "aws_ecs_task_definition" "task_definition" {
       }
     }
   }
+
   container_definitions = jsonencode([{
     name   = var.task_name
     image  = "${var.container_registry}${var.task_image}:${var.task_image_version}"

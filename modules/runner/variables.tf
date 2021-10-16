@@ -1,18 +1,19 @@
 
 variable "instance" {
-  type = {
+  type = object({
     min_count              = number
     max_count              = number
     termination_protection = string
     managed_scaling_status = string
     protect_from_scale_in  = bool
-  }
+  })
   default = {
-    min_count              = 1
-    max_count              = 1
-    termination_protection = "DISABLED"
-    managed_scaling_status = "ENABLED"
-    protect_from_scale_in  = false
+    min_count               = 1
+    max_count               = 1
+    termination_protection  = "DISABLED"
+    managed_scaling_status  = "ENABLED"
+    protect_from_scale_in   = false
+    scaling_target_capacity = 95
   }
 }
 
@@ -36,16 +37,11 @@ variable "capacity_count" {
   default = 1
 }
 
-variable "name" {
-  type    = string
-  default = "micro"
-}
-
 variable "network" {
   type = object({
     vpc_id              = string
-    vpc_public_subnets  = string
-    vpc_private_subnets = bool
+    vpc_public_subnets  = list(string)
+    vpc_private_subnets = list(string)
     cluster_name        = string
   })
 }
@@ -64,17 +60,35 @@ variable "task_memory" {
 
 variable "runner_version" {
   default = "1.6.3"
+  type    = string
 }
 
 variable "runner_port" {
   default = 80
+  type    = number
+}
+
+variable "runner_capacity" {
+  type = number
+}
+
+variable "runner_debug" {
+  type    = string
+  default = "true"
 }
 
 variable "server_security_group" {
-
+  type = string
 }
 
-variable "efs_id" {
-  type    = list(any)
-  default = []
+variable "service_discovery_dns_namespace_id" {
+  type = string
+}
+
+variable "service_discovery_dns_namespace_name" {
+  type = string
+}
+
+variable "log_group_id" {
+  type = string
 }
