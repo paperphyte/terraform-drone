@@ -43,6 +43,7 @@ variable "network" {
     vpc_public_subnets  = list(string)
     vpc_private_subnets = list(string)
     cluster_name        = string
+    cluster_id          = string
   })
 }
 
@@ -59,12 +60,12 @@ variable "task_memory" {
 }
 
 variable "runner_version" {
-  default = "1.6.3"
+  default = "v1.6.3"
   type    = string
 }
 
 variable "runner_port" {
-  default = 80
+  default = 3000
   type    = number
 }
 
@@ -90,5 +91,9 @@ variable "service_discovery_dns_namespace_name" {
 }
 
 variable "log_group_id" {
+  type = string
+}
+
+variable "service_discovery_server_endpoint" {
   type = string
 }

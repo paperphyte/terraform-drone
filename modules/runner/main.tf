@@ -27,10 +27,10 @@ resource "aws_security_group_rule" "runner_default_egress" {
 
 resource "aws_security_group_rule" "runner_ingress" {
   type        = "ingress"
-  description = "Drone CI/CD build agents to access"
+  description = "Drone CI/CD runner instances to access"
   protocol    = "tcp"
-  from_port   = var.runner_port
-  to_port     = var.runner_port
+  from_port   = 80
+  to_port     = 80
 
   source_security_group_id = aws_security_group.runner.id
   security_group_id        = var.server_security_group
@@ -184,9 +184,11 @@ module "drone_runner_task" {
   task_container_log_group_name      = var.log_group_id
   container_registry                 = local.container_registry
   service_discovery_dns_namespace_id = var.service_discovery_dns_namespace_id
-  service_cluster_name               = lookup(var.network, "cluster_name", null)
-  service_cluster_id                 = lookup(var.network, "cluster_id", null)
+  service_cluster_name               = var.network["cluster_name"]
+  service_cluster_id                 = var.network["cluster_id"]
   task_bind_port                     = var.runner_port
+  task_requires_compatibilities      = "EC2"
+  service_capacity_provider          = var.capacity_name
   mount_points = [{
     containerPath = "/var/run/docker.sock"
     sourceVolume  = "dockersock"
@@ -242,7 +244,7 @@ module "drone_runner_task" {
     },
     {
       name  = "DRONE_RPC_HOST"
-      value = var.service_discovery_dns_namespace_name
+      value = var.service_discovery_server_endpoint
     }
   ]
   task_secret_vars = [
@@ -251,4 +253,15 @@ module "drone_runner_task" {
       valueFrom = data.aws_ssm_parameter.rpc_secret.arn
     }
   ]
+}
+
+resource "aws_security_group_rule" "runner_rask_ingress" {
+  type        = "ingress"
+  description = "Drone CI/CD runner tasks to access"
+  protocol    = "tcp"
+  from_port   = 80
+  to_port     = 80
+
+  source_security_group_id = module.drone_runner_task.service_sg_id
+  security_group_id        = var.server_security_group
 }

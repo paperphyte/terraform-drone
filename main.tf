@@ -18,7 +18,7 @@ resource "aws_cloudwatch_log_group" "drone" {
 resource "aws_ecs_cluster" "cluster" {
   name = "drone-cluster"
   capacity_providers = [
-    "FARGATE", "FARGATE_SPOT"
+    "FARGATE", "FARGATE_SPOT", module.defaultrunner.capacity_name
   ]
   default_capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
@@ -52,7 +52,7 @@ module "server" {
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
     allow_cidr_range = concat(
-      concat(["95.198.57.109/32"],
+      concat(["95.198.22.74/32"],
       data.github_ip_ranges.ranges.hooks_ipv4),
       ["${element(module.vpc.nat_public_ips, 0)}/32"]
     )
@@ -83,4 +83,7 @@ module "defaultrunner" {
   log_group_id                         = aws_cloudwatch_log_group.drone.id
   service_discovery_dns_namespace_id   = module.server.service_discovery_dns_namespace_id
   service_discovery_dns_namespace_name = module.server.service_discovery_dns_namespace_name
+  service_discovery_server_endpoint    = module.server.service_discovery_server_endpoint
 }
+
+
