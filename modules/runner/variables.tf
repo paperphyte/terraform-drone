@@ -97,3 +97,11 @@ variable "log_group_id" {
 variable "service_discovery_server_endpoint" {
   type = string
 }
+
+variable "service_discovery_secret_endpoint" {
+  type = string
+}
+
+variable "secrets_security_group" {
+  type = string
+}

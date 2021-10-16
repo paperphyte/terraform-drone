@@ -245,17 +245,25 @@ module "drone_runner_task" {
     {
       name  = "DRONE_RPC_HOST"
       value = var.service_discovery_server_endpoint
+    },
+    {
+      name  = "DRONE_SECRET_PLUGIN_ENDPOINT"
+      value = "http://${var.service_discovery_secret_endpoint}:3000"
     }
   ]
   task_secret_vars = [
     {
       name      = "DRONE_RPC_SECRET"
       valueFrom = data.aws_ssm_parameter.rpc_secret.arn
+    },
+    {
+      name      = "DRONE_SECRET_PLUGIN_TOKEN"
+      valueFrom = data.aws_ssm_parameter.secret_secret.arn
     }
   ]
 }
 
-resource "aws_security_group_rule" "runner_rask_ingress" {
+resource "aws_security_group_rule" "server_runner_task_ingress" {
   type        = "ingress"
   description = "Drone CI/CD runner tasks to access"
   protocol    = "tcp"
@@ -264,4 +272,15 @@ resource "aws_security_group_rule" "runner_rask_ingress" {
 
   source_security_group_id = module.drone_runner_task.service_sg_id
   security_group_id        = var.server_security_group
+}
+
+resource "aws_security_group_rule" "secret_runner_task_ingress" {
+  type        = "ingress"
+  description = "Drone CI/CD runner tasks to access"
+  protocol    = "tcp"
+  from_port   = 3000
+  to_port     = 3000
+
+  source_security_group_id = module.drone_runner_task.service_sg_id
+  security_group_id        = var.secrets_security_group
 }

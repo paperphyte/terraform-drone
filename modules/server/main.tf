@@ -136,15 +136,17 @@ resource "aws_ssm_parameter" "data_source" {
 }
 
 resource "aws_ssm_parameter" "rpc_secret" {
-  name  = "/drone/server/rpc_secret"
-  type  = "String"
-  value = random_string.server_secret.result
+  name      = "/drone/server/rpc_secret"
+  type      = "String"
+  value     = random_string.server_secret.result
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "database_secret" {
-  name  = "/drone/server/database_secret"
-  type  = "String"
-  value = random_string.database_secret.result
+  name      = "/drone/server/database_secret"
+  type      = "String"
+  value     = random_string.database_secret.result
+  overwrite = true
 }
 
 module "drone_server_task" {
@@ -271,7 +273,7 @@ module "drone_server_task" {
 }
 
 
-resource "aws_security_group_rule" "lb_grafana_ingress_rule" {
+resource "aws_security_group_rule" "lb_server_ingress_rule" {
   security_group_id        = module.drone_server_task.service_sg_id
   description              = "Allow LB to communicate the Fargate ECS service."
   type                     = "ingress"
@@ -364,4 +366,82 @@ resource "aws_instance" "instance_helper" {
   tags = {
     Name = "drone-instance-helper"
   }
+}
+
+# ----------------------------------------
+# Amazon Secrets Manager
+# ----------------------------------------
+
+resource "random_string" "secret_secret" {
+  length  = 32
+  special = false
+}
+
+resource "aws_ssm_parameter" "secret_secret" {
+  name      = "/drone/server/amazon_secret"
+  type      = "String"
+  value     = random_string.secret_secret.result
+  overwrite = true
+}
+
+module "drone_secrets_task" {
+  source                             = "../task"
+  service_name                       = "amazon-secrets"
+  vpc_id                             = lookup(var.network, "vpc_id", null)
+  vpc_private_subnets                = lookup(var.network, "vpc_private_subnets", null)
+  task_name                          = "amazon-secrets"
+  task_image                         = "drone/drone-amazon-secrets"
+  task_image_version                 = lookup(var.server_versions, "secrets", null)
+  task_container_log_group_name      = var.log_group_id
+  container_registry                 = local.container_registry
+  service_discovery_dns_namespace_id = module.drone_lb.service_discovery_private_dns_namespace_id
+  service_cluster_name               = lookup(var.network, "cluster_name", null)
+  service_cluster_id                 = lookup(var.network, "cluster_id", null)
+  task_bind_port                     = 3000
+
+  task_secret_vars = [
+    {
+      name      = "SECRET_KEY"
+      valueFrom = aws_ssm_parameter.secret_secret.arn
+    }
+  ]
+
+  task_environment_vars = [
+    {
+      name  = "DEBUG",
+      value = "${var.drone_debug}"
+    },
+    {
+      name  = "AWS_REGION"
+      value = data.aws_region.current.name
+    },
+  ]
+}
+
+resource "aws_iam_policy" "secrets_policy" {
+  name = "secrets_taskj_policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:ListSecretVersionIds",
+        "kms:Decrypt"
+      ],
+      "Resource": ["*"]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "secret_task_custom" {
+  role       = module.drone_secrets_task.task_role_id
+  policy_arn = aws_iam_policy.secrets_policy.arn
 }

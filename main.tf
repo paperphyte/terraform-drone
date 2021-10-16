@@ -80,10 +80,12 @@ module "defaultrunner" {
   }
   runner_capacity                      = 2
   server_security_group                = module.server.server_sg_id
+  secrets_security_group               = module.server.secrets_sg_id
   log_group_id                         = aws_cloudwatch_log_group.drone.id
   service_discovery_dns_namespace_id   = module.server.service_discovery_dns_namespace_id
   service_discovery_dns_namespace_name = module.server.service_discovery_dns_namespace_name
   service_discovery_server_endpoint    = module.server.service_discovery_server_endpoint
+  service_discovery_secret_endpoint    = module.server.service_discovery_secret_endpoint
 }
 
 
