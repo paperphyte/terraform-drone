@@ -10,7 +10,7 @@ variable "dns_root_id" {
 
 variable "drone_admin" {
   type        = string
-  description =  "A default user to be admin of drone at creation"
+  description = "A default user to be admin of drone at creation"
 }
 
 variable "drone_user_filter" {
@@ -26,13 +26,13 @@ variable "allowed_cidr" {
 
 variable "versions" {
   description = "Version of drone task container image"
-  type        = object({
+  type = object({
     server  = string
     secrets = string
     yaml    = string
     runner  = string
   })
-  default     = {
+  default = {
     server  = "v2.4.0"
     secrets = "v1.0.0"
     yaml    = "v0.4.2"
