@@ -4,8 +4,19 @@ variable "dns_root_name" {
 }
 
 variable "dns_root_id" {
-  default = ""
-  type    = string
+  type = string
+}
+
+variable "drone_admin" {
+  type = string
+}
+
+variable "drone_user_filter" {
+  type = string
+}
+
+variable "allowed_cidr" {
+  type = list(string)
 }
 
 variable "versions" {

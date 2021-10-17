@@ -42,8 +42,8 @@ resource "aws_ecs_cluster" "cluster" {
 
 module "server" {
   source            = "./modules/server"
-  drone_user_filter = "paperphyte"
-  drone_admin       = "krusipo"
+  drone_user_filter = var.drone_user_filter
+  drone_admin       = var.drone_admin
   log_group_id      = aws_cloudwatch_log_group.drone.id
   network = {
     vpc_id              = module.vpc.vpc_id
@@ -52,7 +52,7 @@ module "server" {
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
     allow_cidr_range = concat(
-      concat(["95.198.22.74/32"],
+      concat(var.allowed_cidr,
       data.github_ip_ranges.ranges.hooks_ipv4),
       ["${element(module.vpc.nat_public_ips, 0)}/32"]
     )
