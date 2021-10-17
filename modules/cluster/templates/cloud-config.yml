@@ -1,9 +1,0 @@
-#cloud-config
-
-runcmd:
-  - [ sh, -c, "sed -i 's/1024/1024000/g; s/4096/1024000/g' /etc/sysconfig/docker" ]
-  - [ sh, -c, "service docker restart"]
-
-bootcmd:
-  - mkdir -p /etc/ecs
-  - echo "ECS_CLUSTER=${ecs_cluster_name}" >> /etc/ecs/ecs.config

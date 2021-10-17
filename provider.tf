@@ -1,17 +1,30 @@
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
+    github = {
+      source  = "integrations/github"
+      version = "~> 4.0"
+    }
+  }
+}
+
 provider "aws" {
-  version = "~> 2.19.0"
-  region  = var.aws_region
+  region = "eu-north-1"
+  default_tags {
+    tags = {
+      Terraform   = "true"
+      Environment = "prod"
+      Project     = "drone"
+    }
+  }
 }
 
-provider "random" {
-  version = "~> 2.1.2"
-}
-
-provider "template" {
-  version = "~> 2.1.2"
-}
-
-provider "archive" {
-  version = "~> 1.2.2"
-}
-
+provider "github" {}
