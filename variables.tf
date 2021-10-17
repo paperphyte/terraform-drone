@@ -19,7 +19,7 @@ variable "drone_user_filter" {
 }
 
 variable "allowed_cidr" {
-  type = list(string)
+  type    = list(string)
   default = ["0.0.0.0/32"]
 }
 
