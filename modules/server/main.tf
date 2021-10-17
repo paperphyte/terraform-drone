@@ -115,6 +115,73 @@ resource "aws_s3_bucket" "drone_build_log_storage" {
   }
 }
 
+
+# ----------------------------------------
+# Bitbeats Monorepo YAML Extension
+# ----------------------------------------
+
+resource "random_string" "yaml_secret" {
+  length  = 16
+  special = false
+}
+
+resource "aws_ssm_parameter" "yaml_secret" {
+  name      = "/drone/server/yaml_secret"
+  type      = "String"
+  value     = random_string.yaml_secret.result
+  overwrite = true
+}
+
+module "drone_yaml_task" {
+  source                             = "../task"
+  service_name                       = "yaml-extension"
+  vpc_id                             = lookup(var.network, "vpc_id", null)
+  vpc_private_subnets                = lookup(var.network, "vpc_private_subnets", null)
+  task_name                          = "yaml-extension"
+  task_image                         = "bitsbeats/drone-tree-config"
+  task_image_version                 = lookup(var.server_versions, "yaml", null)
+  task_container_log_group_name      = var.log_group_id
+  container_registry                 = local.container_registry
+  service_discovery_dns_namespace_id = module.drone_lb.service_discovery_private_dns_namespace_id
+  service_cluster_name               = lookup(var.network, "cluster_name", null)
+  service_cluster_id                 = lookup(var.network, "cluster_id", null)
+  task_bind_port                     = 3000
+
+  task_secret_vars = [
+    {
+      name      = "PLUGIN_SECRET"
+      valueFrom = aws_ssm_parameter.yaml_secret.arn
+    },
+    {
+      name      = "GITHUB_TOKEN"
+      valueFrom = data.aws_ssm_parameter.yaml_extension_github_token.arn
+    }
+  ]
+
+  task_environment_vars = [
+    {
+      name  = "PLUGIN_DEBUG",
+      value = "${var.drone_debug}"
+    },
+    {
+      name  = "AWS_REGION"
+      value = data.aws_region.current.name
+    },
+    {
+      name  = "AWS_DEFAULT_REGION"
+      value = data.aws_region.current.name
+    },
+    {
+      name  = "PLUGIN_CONSIDER_FILE"
+      value = ".drone-consider"
+    },
+    {
+      name  = "PLUGIN_CACHE_TTL"
+      value = "30m"
+    }
+  ]
+}
+
 # ----------------------------------------
 # Drone Server Service
 # ----------------------------------------
@@ -189,10 +256,18 @@ module "drone_server_task" {
     {
       name      = "DRONE_DATABASE_SECRET",
       valueFrom = aws_ssm_parameter.database_secret.arn
+    },
+    {
+      name      = "DRONE_YAML_SECRET",
+      valueFrom = aws_ssm_parameter.yaml_secret.arn
     }
   ]
 
   task_environment_vars = [
+    {
+      name  = "DRONE_YAML_ENDPOINT"
+      value = "http://yaml-extension.drone.local:3000"
+    },
     {
       name  = "DRONE_LOGS_TRACE"
       value = "${var.drone_debug}"
@@ -283,6 +358,15 @@ resource "aws_security_group_rule" "lb_server_ingress_rule" {
   source_security_group_id = module.drone_lb.lb_sg_id
 }
 
+resource "aws_security_group_rule" "server_yaml_ingress_rule" {
+  security_group_id        = module.drone_yaml_task.service_sg_id
+  description              = "Allow drone server connections to yaml extension."
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 3000
+  to_port                  = 3000
+  source_security_group_id = module.drone_server_task.service_sg_id
+}
 
 resource "aws_iam_policy" "server_task_policy" {
   name = "server_task_policy"
@@ -415,6 +499,10 @@ module "drone_secrets_task" {
       name  = "AWS_REGION"
       value = data.aws_region.current.name
     },
+    {
+      name  = "AWS_DEFAULT_REGION"
+      value = data.aws_region.current.name
+    }
   ]
 }
 

@@ -61,11 +61,10 @@ module "server" {
   }
 
   server_versions = {
-    server    = "v2.4.0"
-    secrets   = "v1.0.0"
-    registry  = "v1.0.0"
-    monorepo  = "v0.4.2"
-    admission = "v1.0.0"
+    server   = "v2.4.0"
+    secrets  = "v1.0.0"
+    registry = "v1.0.0"
+    yaml     = "v0.4.2"
   }
 }
 
@@ -87,5 +86,3 @@ module "defaultrunner" {
   service_discovery_server_endpoint    = module.server.service_discovery_server_endpoint
   service_discovery_secret_endpoint    = module.server.service_discovery_secret_endpoint
 }
-
-

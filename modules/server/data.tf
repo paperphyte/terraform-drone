@@ -17,6 +17,10 @@ data "aws_ssm_parameter" "db_password" {
   name = "/drone/db/password"
 }
 
+data "aws_ssm_parameter" "yaml_extension_github_token" {
+  name = "/drone/github/token"
+}
+
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]

@@ -35,18 +35,16 @@ variable "network" {
 
 variable "server_versions" {
   type = object({
-    server    = string
-    secrets   = string
-    registry  = string
-    monorepo  = string
-    admission = string
+    server   = string
+    secrets  = string
+    registry = string
+    yaml     = string
   })
   default = {
-    server    = "v2.4.0"
-    secrets   = "v1.0.0"
-    registry  = "v1.0.0"
-    monorepo  = "v0.4.2"
-    admission = "v1.0.0"
+    server   = "v2.4.0"
+    secrets  = "v1.0.0"
+    registry = "v1.0.0"
+    yaml     = "v0.4.2"
   }
 }
 
