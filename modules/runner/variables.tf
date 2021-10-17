@@ -75,7 +75,7 @@ variable "runner_capacity" {
 
 variable "runner_debug" {
   type    = string
-  default = "true"
+  default = "false"
 }
 
 variable "server_security_group" {
