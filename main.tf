@@ -12,7 +12,8 @@ module "vpc" {
 }
 
 resource "aws_cloudwatch_log_group" "drone" {
-  name = "drone-cluster"
+  name              = "drone-cluster"
+  retention_in_days = 1
 }
 
 resource "aws_ecs_cluster" "cluster" {
