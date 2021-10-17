@@ -61,10 +61,9 @@ module "server" {
   }
 
   server_versions = {
-    server   = "v2.4.0"
-    secrets  = "v1.0.0"
-    registry = "v1.0.0"
-    yaml     = "v0.4.2"
+    server  = var.versions["server"]
+    secrets = var.versions["secrets"]
+    yaml    = var.versions["yaml"]
   }
 }
 
@@ -77,6 +76,7 @@ module "defaultrunner" {
     cluster_name        = aws_ecs_cluster.cluster.name
     cluster_id          = aws_ecs_cluster.cluster.id
   }
+  runner_version                       = var.versions["runner"]
   runner_capacity                      = 2
   server_security_group                = module.server.server_sg_id
   secrets_security_group               = module.server.secrets_sg_id

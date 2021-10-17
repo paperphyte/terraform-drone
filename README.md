@@ -1,10 +1,13 @@
 # Drone
 
-This repository contains Terraform infrastructure code which creates AWS resources required to run Drone CI/CD on AWS, including:
+This repository contains Terraform which creates AWS resources required to run 
+Drone CI/CD on AWS ECS.
 
 ## Secrets stored in SSM
 
-For security reasons some secrets are stored in SSM and should be created before running terraform apply.
+For security reasons some secrets are stored in SSM and should be created
+before running terraform apply. To not have it in your history you can also
+use the amazon console.
 
 ### Pre-filled
 
@@ -25,11 +28,27 @@ These will be populated by terraform and overwritten but should be created as em
 | `/drone/server/rpc_secret |  aws ssm put-parameter --name "/drone/server/rpc_secret" --type SecureString --region eu-north-1 --value "" |
 | `/drone/server/amazon_secret |  aws ssm put-parameter --name "/drone/server/amazon_secret" --type SecureString --region eu-north-1 --value "" |
 
-## Docker Images 
+## Source Images
 
-Looks at default for ecr image in current region and account for drone ci images. Must be created prior to running the apply.
+Setup your local region with ecr images required by pulling them from original
+source and pushing them to your ecr region.
 
+### Download & Compile Images
+
+    1. docker pull bitsbeats/drone-tree-config
+    2. docker pull drone/drone-runner-docker
+    3. docker pull drone/drone
+    4. fork: https://github.com/drone/drone-amazon-secrets and compile
+
+### Login to ECR
+
+    aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com
+
+### Tag & Push
+
+    1. docker tag <reference> <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/bitsbeats/drone-tree-config:v0.4.2
+    1. docker push <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/bitsbeats/drone-tree-config:v0.4.2
 
 ### Secrets Plugin.
 
-*note* secrets are defaultly pulled from eu-west-1.
+*note* secrets are defaultly pulled from its own region so compile with region.
